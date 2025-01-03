@@ -66,7 +66,7 @@ export default function Home() {
                 className="w-fit sm:text-2xl px-4 py-1 bg-yellow-400 rounded-md hover:rotate-2 hover:scale-110 transition-all"
                 onMouseEnter={() => {
                   setIsGooseHappy(true);
-                  setNeckLength(130);
+                  setNeckLength(120);
                 }}
                 onMouseLeave={() => {
                   setIsGooseHappy(false);
@@ -85,7 +85,7 @@ export default function Home() {
       {/* Right half - WatCard + Goose */}
       <div className="w-1/2 transition-all z-1 max-w-md items-center justify-end">
         <div className="w-[200%] relative">
-          <div className="absolute bottom-[5%] left-[13%] md:left-[10%] w-1/2 h-5/6 rounded-md">
+          <div className="absolute bottom-[5%] left-[13%] md:left-[20%] w-1/2 h-5/6 rounded-md">
             <GooseHead size="250" isHappy={isGooseHappy} maxDistance={neckLength} />
           </div>
           <WatCard />

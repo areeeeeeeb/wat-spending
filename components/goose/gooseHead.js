@@ -5,6 +5,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Base from './base.svg'
 import TopBeak from './top_beak.svg'
 import BottomBeak from './bottom_beak.svg'
+import SpeechBubble from '../speechBubble';
 
 const GooseHead = ({
     size = 200,
@@ -94,7 +95,7 @@ const GooseHead = ({
 
 
     return (
-        <div className="relative h-full  rounded-xl pointer-events-none w-full flex items-center justify-center ">
+        <div className="relative h-full rounded-xl pointer-events-none w-full flex items-center justify-center ">
             {/* NECK */}
             <svg className="w-screen h-full" style={{ pointerEvents: 'none' }}>
                 <line
@@ -114,7 +115,7 @@ const GooseHead = ({
 
             {/* HEAD */}
             <div
-                className="absolute z-20 drop-shadow-2xl flex items-center justify-center"
+                className="absolute z-20 flex items-center justify-center"
                 ref={containerRef}
                 style={{
                     transform: `translate(${position.x}px, ${position.y}px) rotate(${rotation}deg)`,
@@ -122,6 +123,12 @@ const GooseHead = ({
                     transition: 'transform 0.04s ease-out'
                 }}
             >
+                {mouthDeg > 20 && (
+                    <div className='translate-x-[-120%] drop-shadow-none '> 
+                        <SpeechBubble rotation={rotation} />
+                    </div>
+                )}
+                
                 {/* HEAD BASE */}
                 <Base 
                     width={size} 
@@ -129,7 +136,7 @@ const GooseHead = ({
                     viewBox="0 0 111 111" 
                     fill="none" 
                     xmlns="http://www.w3.org/2000/svg"
-                    className="absolute"
+                    className="absolute drop-shadow-2xl"
                 />
                 
                 {/* EYEBALL */}
@@ -153,7 +160,7 @@ const GooseHead = ({
                     width={82.1 * scale} 
                     height={52.96 * scale} 
                     viewBox="0 0 82.1 52.96"
-                    className="absolute transition-all"
+                    className="absolute transition-all drop-shadow-2xl"
                     style={{
                         transform: `translateX(-68%) translateY(23%) rotate(${-mouthDeg / 5}deg)`,
                         transformOrigin: `100% 62.8%`
@@ -165,7 +172,7 @@ const GooseHead = ({
                     width={97.78 * scale} 
                     height={36.06 * scale} 
                     viewBox="0 0 97.78 36.06"
-                    className="absolute transition-all"
+                    className="absolute transition-all drop-shadow-2xl"
                     style={{
                         transformOrigin: `100% 80%`,
                         transform: `translateX(-65%)  rotate(${mouthDeg}deg)`
