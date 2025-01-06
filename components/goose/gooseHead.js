@@ -12,7 +12,7 @@ const GooseHead = ({
     isHappy = false,
     maxDistance = size / 5,
     speech = "",
-    mode = "BOBBING" // New MODE parameter
+    mode = "FOLLOW" // New MODE parameter
 }) => {
     const scale = size / 111;
     const eyeSize = {
@@ -126,7 +126,7 @@ const GooseHead = ({
                 />
             </svg>
 
-            {/* HEAD */}
+            {/* HEAD + SPEECH BUBBLE */}
             <div
                 className="absolute z-20 flex items-center justify-center"
                 ref={containerRef}
@@ -136,6 +136,7 @@ const GooseHead = ({
                     transition: 'transform 0.04s ease-out'
                 }}
             >
+                {/* SPEECH BUBBLE */}
                 {mouthDeg > 20 && speech != ""  &&(
                     <div className='translate-x-[-120%] drop-shadow-none '> 
                         <SpeechBubble text={speech} />
@@ -169,6 +170,8 @@ const GooseHead = ({
                     }}
                     />
                 </div>
+
+                {/* BEAK */}
                 <BottomBeak                     
                     width={82.1 * scale} 
                     height={52.96 * scale} 
@@ -179,8 +182,6 @@ const GooseHead = ({
                         transformOrigin: `100% 62.8%`
                     }}
                 />
-
-                {/* BEAK */}
                 <TopBeak 
                     width={97.78 * scale} 
                     height={36.06 * scale} 

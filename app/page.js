@@ -8,7 +8,8 @@ import { useTransactions } from '@/components/providers/transactions-provider';
 
 export default function Home() {
   const [isGooseHappy, setIsGooseHappy] = useState(false);
-  const [neckLength, setNeckLength] = useState(100);
+  const regularNeckLength = 200;
+  const [neckLength, setNeckLength] = useState(regularNeckLength);
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const { transactions } = useTransactions();
@@ -84,11 +85,11 @@ export default function Home() {
                 className="w-fit sm:text-2xl px-4 py-1 bg-yellow-400 rounded-md hover:rotate-2 hover:scale-110 transition-all"
                 onMouseEnter={() => {
                   setIsGooseHappy(true);
-                  setNeckLength(120);
+                  setNeckLength(regularNeckLength * 1.2);
                 }}
                 onMouseLeave={() => {
                   setIsGooseHappy(false);
-                  setNeckLength(100);
+                  setNeckLength(regularNeckLength);
                 }}   
                 onClick={handleNextSlide}
               >
@@ -108,6 +109,7 @@ export default function Home() {
               size={250}
               isHappy={isGooseHappy}
               maxDistance={neckLength}
+              mode="FOLLOW"
               speech=''
             />
           </div>
