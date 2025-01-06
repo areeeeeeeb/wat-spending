@@ -1,17 +1,17 @@
-'use client'; // Add this to enable client-side features
+'use client';
 
 import React, { useState } from 'react';
-import { Upload, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Upload, AlertCircle, CheckCircle2, Download } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useTransactions } from './providers/transactions-provider';
 
 export default function TransactionImporter() {
-  const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
+  const { transactions, updateTransactions, downloadCSV } = useTransactions();
 
   const parseTransactions = (text) => {
     try {
-      // Find the start of transaction data
       const lines = text.split('\n');
       const dataStartIndex = lines.findIndex(line => line.includes('Date - Time'));
       
@@ -19,9 +19,8 @@ export default function TransactionImporter() {
         throw new Error('Could not find transaction data. Please copy the entire transaction table from WatCard.');
       }
 
-      // Skip header row and parse transactions
-      const transactions = lines.slice(dataStartIndex + 1)
-        .filter(line => line.match(/^\d{4}-\d{2}-\d{2}/)) // Only lines starting with dates
+      const parsedTransactions = lines.slice(dataStartIndex + 1)
+        .filter(line => line.match(/^\d{4}-\d{2}-\d{2}/))
         .map(line => {
           const parts = line.split(/(?<=\d)\s+(?=\d{3}\s+:|[A-Z]+\s+\()|(?<=\))\s+(?=\d{5}\s+:|[A-Z]+[-\w]+)|(?<=:)\s+(?=[A-Z]+[-\w]+)|(?<=\w)\s+(?=Approved)|(?<=Approved)\s+(?=\d+)|(?<=\d)\s+(?=\$)/).filter(Boolean);
           
@@ -37,15 +36,15 @@ export default function TransactionImporter() {
           };
         });
 
-      if (transactions.length === 0) {
+      if (parsedTransactions.length === 0) {
         throw new Error('No valid transactions found. Please make sure to copy the entire table.');
       }
 
-      setData(transactions);
+      updateTransactions(parsedTransactions);
       setError(null);
     } catch (e) {
       setError(e.message);
-      setData(null);
+      updateTransactions([]);
     }
   };
 
@@ -105,39 +104,21 @@ export default function TransactionImporter() {
         </Alert>
       )}
 
-      {data && (
-        <div className="space-y-4 overflow-y-scroll ">
+      {transactions.length > 0 && (
+        <div className="flex justify-between items-center">
           <Alert>
             <CheckCircle2 className="h-4 w-4" />
             <AlertDescription>
-              Successfully imported {data.length} transactions
+              Successfully imported {transactions.length} transactions
             </AlertDescription>
           </Alert>
-
-          <div className="border rounded-lg overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead>
-                <tr className="bg-gray-50">
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date & Time</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Balance</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {data.slice(0, 10).map((tx, i) => (
-                  <tr key={i}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{tx.dateTime}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{tx.location}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{tx.type}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">${tx.amount.toFixed(2)}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">${tx.balance.toFixed(2)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <button 
+            onClick={downloadCSV}
+            className="flex items-center gap-2"
+          >
+            <Download className="h-4 w-4" />
+            Download CSV
+          </button>
         </div>
       )}
     </div>

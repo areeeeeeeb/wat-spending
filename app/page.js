@@ -3,11 +3,18 @@ import { useState, useEffect } from 'react';
 import WatCard from "@/components/watCard";
 import GooseHead from "@/components/goose/gooseHead";
 import TransactionImporter from '@/components/transactionImporter';
+import { useTransactions } from '@/components/providers/transactions-provider';
+
 
 export default function Home() {
   const [isGooseHappy, setIsGooseHappy] = useState(false);
   const [neckLength, setNeckLength] = useState(100);
   const [currentSlide, setCurrentSlide] = useState(0);
+
+  const { transactions } = useTransactions();
+  const totalSpent = transactions
+    .filter(tx => tx.amount < 0)
+    .reduce((sum, tx) => sum + Math.abs(tx.amount), 0);
   
   const slides = [
     // SLIDE 1
@@ -29,10 +36,21 @@ export default function Home() {
     },
     // SLIDE 2
     {
-      title: <h1 className="text-xl sm:text-4xl max-w-full font-bold">Smart Categorization</h1>,
+      title: <h1 className="text-xl sm:text-4xl max-w-full font-bold">Import it up</h1>,
       content: (
         <div className='w-full'>
           <TransactionImporter/>
+        </div>
+      ),
+      buttonText: "Next"
+    },
+    // SLIDE 3
+    {
+      title: <h1 className="text-xl sm:text-4xl max-w-full font-bold">You spent</h1>,
+      content: (
+        <div>
+          <h2>Transaction Analysis</h2>
+          <p>Total Spent: ${totalSpent.toFixed(2)}</p>
         </div>
       ),
       buttonText: "Next"
@@ -87,7 +105,7 @@ export default function Home() {
         <div className="w-[200%] relative">
           <div className="absolute bottom-[5%] left-[13%] md:left-[20%] w-1/2 h-5/6 rounded-md">
             <GooseHead 
-              size="250"
+              size={window.innerWidth * 0.22}
               isHappy={isGooseHappy}
               maxDistance={neckLength}
               speech='Happy new year and semester!!! 🎉'
