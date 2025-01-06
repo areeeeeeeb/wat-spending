@@ -20,7 +20,7 @@ export default function Home() {
     // SLIDE 1
     {
       title: (
-        <h1 className="text-5xl sm:text-8xl max-w-full flex flex-wrap font-bold "> 
+        <h1 className="text-5xl sm:text-7xl md:text-8xl  max-w-full flex flex-wrap font-bold "> 
           <span className="text-yellow-400 italic">WAT</span> 
           <span className='flex flex-wrap'> 
             <span>Was</span>Spent? 
@@ -70,7 +70,7 @@ export default function Home() {
         <div 
           className="flex transition-transform duration-500 ease-in-out"
           style={{ 
-            transform: `translateX(-${currentSlide * 100}%)`,  // Adjusting translation to match 50% width
+            transform: `translateX(-${currentSlide * 100}%)`,
           }}
         >
           {slides.map((slide, index) => (
@@ -105,10 +105,10 @@ export default function Home() {
         <div className="w-[200%] relative">
           <div className="absolute bottom-[5%] left-[13%] md:left-[20%] w-1/2 h-5/6 rounded-md">
             <GooseHead 
-              size={window.innerWidth * 0.22}
+              size={250}
               isHappy={isGooseHappy}
               maxDistance={neckLength}
-              speech='Happy new year and semester!!! 🎉'
+              speech=''
             />
           </div>
           {/* <div className="relative w-full aspect-[5/3]"/> */}

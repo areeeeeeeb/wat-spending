@@ -12,11 +12,9 @@ const GooseHead = ({
     isHappy = false,
     maxDistance = size / 5,
     speech = "",
+    mode = "BOBBING" // New MODE parameter
 }) => {
-    
     const scale = size / 111;
-  
-    // Scale all dimensions accordingly
     const eyeSize = {
         outer: 30 * scale,
         inner: 12 * scale
@@ -27,6 +25,7 @@ const GooseHead = ({
     const [mouthDeg, setMouthDeg] = useState(0);
     const prevAngleRef = useRef(0);
     const containerRef = useRef(null);
+    const animationFrameRef = useRef(null);
 
     useEffect(() => {
         const handleKeyDown = (event) => {
@@ -43,57 +42,70 @@ const GooseHead = ({
 
     useEffect(() => {
         setMouthDeg(isHappy ? 26 : 0);
-    }, [isHappy])
-  
+    }, [isHappy]);
+
     useEffect(() => {
-      const handleMouseMove = (event) => {
-        if (!containerRef.current) return;
-  
-        const bounds = containerRef.current.getBoundingClientRect();
-        const centerX = bounds.left + bounds.width / 2;
-        const centerY = bounds.top + bounds.height / 2;
+        if (mode === "BOBBING") {
+            const animate = (time) => {
+                // Complete cycle every 2 seconds
+                const cycle = (time / 2000) % 1;
+                // Use sine wave for smooth movement
+                const y = -16 + (10 * Math.sin(cycle * 2 * Math.PI));
+                setPosition(prev => ({ x: -100, y }));
+                animationFrameRef.current = requestAnimationFrame(animate);
+            };
+            animationFrameRef.current = requestAnimationFrame(animate);
+            return () => {
+                if (animationFrameRef.current) {
+                    cancelAnimationFrame(animationFrameRef.current);
+                }
+            };
+        } if (mode === "FOLLOW") {
+            const handleMouseMove = (event) => {
+                if (!containerRef.current) return;
 
-        // HEAD POSITION / NECK STRETCH
-        // Calculate distance to mouse
-        const dx = event.clientX - centerX;
-        const dy = event.clientY - centerY;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        // Limit the distance the head can move
-        const scaledDistance = Math.min(distance, maxDistance);
-        const scale = scaledDistance / distance;
-        // Update head position
-        const newX = dx * scale;
-        const newY = dy * scale;
-        setPosition({ x: newX, y: newY });
+                const bounds = containerRef.current.getBoundingClientRect();
+                const centerX = bounds.left + bounds.width / 2;
+                const centerY = bounds.top + bounds.height / 2;
 
-        // HEAD ROTATION
-        // Calculate angle
-        let angle = Math.atan2(
-          event.clientY - centerY,
-          event.clientX - centerX
-        ) * (180 / Math.PI);
-        // Make face mouse
-        angle = angle + 180; 
-        // Normalize to prevent sudden jumps
-        const prevAngle = prevAngleRef.current; 
-        if (Math.abs(angle - prevAngle) > 180) {
-            if (angle < prevAngle) {
-              angle += 360;
-            } else {
-              angle -= 360;
-            }
+                // HEAD POSITION / NECK STRETCH
+                // Calculate distance to mouse
+                const dx = event.clientX - centerX;
+                const dy = event.clientY - centerY;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                const scaledDistance = Math.min(distance, maxDistance);
+                const scale = scaledDistance / distance;
+                const newX = dx * scale;
+                const newY = dy * scale;
+                setPosition({ x: newX, y: newY });
+
+                // HEAD ROTATION
+                // Calculate angle
+                let angle = Math.atan2(
+                    event.clientY - centerY,
+                    event.clientX - centerX
+                ) * (180 / Math.PI);
+                angle = angle + 180;
+                // Normalize to prevent sudden jumps
+                const prevAngle = prevAngleRef.current;
+                if (Math.abs(angle - prevAngle) > 180) {
+                    if (angle < prevAngle) {
+                        angle += 360;
+                    } else {
+                        angle -= 360;
+                    }
+                }
+                while (angle > prevAngle + 180) angle -= 360;
+                while (angle < prevAngle - 180) angle += 360;
+
+                prevAngleRef.current = angle;
+                setRotation(angle);
+            };
+
+            window.addEventListener('mousemove', handleMouseMove);
+            return () => window.removeEventListener('mousemove', handleMouseMove);
         }
-        while (angle > prevAngle + 180) angle -= 360;
-        while (angle < prevAngle - 180) angle += 360;
-        // Apply rotation
-        prevAngleRef.current = angle;
-        setRotation(angle);
-      };
-  
-      window.addEventListener('mousemove', handleMouseMove);
-      return () => window.removeEventListener('mousemove', handleMouseMove);
-    }, [position]);
-
+    }, [mode, maxDistance]);
 
     return (
         <div className="relative h-full rounded-xl pointer-events-none w-full flex items-center justify-center ">
