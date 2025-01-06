@@ -10,7 +10,8 @@ import SpeechBubble from '../speechBubble';
 const GooseHead = ({
     size = 200,
     isHappy = false,
-    maxDistance = size / 5
+    maxDistance = size / 5,
+    speech = "",
 }) => {
     
     const scale = size / 111;
@@ -123,9 +124,9 @@ const GooseHead = ({
                     transition: 'transform 0.04s ease-out'
                 }}
             >
-                {mouthDeg > 20 && (
+                {mouthDeg > 20 && speech != ""  &&(
                     <div className='translate-x-[-120%] drop-shadow-none '> 
-                        <SpeechBubble rotation={rotation} />
+                        <SpeechBubble text={speech} />
                     </div>
                 )}
                 

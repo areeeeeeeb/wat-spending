@@ -86,8 +86,14 @@ export default function Home() {
       <div className="w-1/2 transition-all z-1 max-w-md items-center justify-end">
         <div className="w-[200%] relative">
           <div className="absolute bottom-[5%] left-[13%] md:left-[20%] w-1/2 h-5/6 rounded-md">
-            <GooseHead size="250" isHappy={isGooseHappy} maxDistance={neckLength} />
+            <GooseHead 
+              size="250"
+              isHappy={isGooseHappy}
+              maxDistance={neckLength}
+              speech='Happy new year and semester!!! 🎉'
+            />
           </div>
+          {/* <div className="relative w-full aspect-[5/3]"/> */}
           <WatCard />
         </div>
       </div>
