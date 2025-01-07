@@ -6,6 +6,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useTransactions } from './providers/transactions-provider';
 
 export default function TransactionImporter() {
+  const [textValue, setTextValue] = useState('');
   const [error, setError] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const { transactions, updateTransactions, downloadCSV } = useTransactions();
@@ -22,17 +23,19 @@ export default function TransactionImporter() {
       const parsedTransactions = lines.slice(dataStartIndex + 1)
         .filter(line => line.match(/^\d{4}-\d{2}-\d{2}/))
         .map(line => {
-          const parts = line.split(/(?<=\d)\s+(?=\d{3}\s+:|[A-Z]+\s+\()|(?<=\))\s+(?=\d{5}\s+:|[A-Z]+[-\w]+)|(?<=:)\s+(?=[A-Z]+[-\w]+)|(?<=\w)\s+(?=Approved)|(?<=Approved)\s+(?=\d+)|(?<=\d)\s+(?=\$)/).filter(Boolean);
+          const parts = line.split(/(?<=\d)\s+(?=\d{3}\s+:|[A-Z]+\s+\()|(?<=\))\s+(?=\d{5}\s+:|[A-Z]+[-\w]+)|(?<=:)\s+(?=\d{5}\s+:|[A-Z]+[-\w]+)|(?<=\w)\s+(?=Approved)|(?<=Approved)\s+(?=\d+)|(?<=\d)\s+(?=\$)/).filter(Boolean);
           
-          const [dateTime, type, terminal, status, balance, units, amount] = parts;
+          // Safely extract values with default values if undefined
+          const [dateTime = '', type = '', terminal = '', status = '', balance = '0', units = '', amount = '$0'] = parts;
           
           return {
             dateTime,
             type: type.split(' : ')[1] || type,
             location: terminal.split(' : ')[1] || terminal,
             status,
-            balance: parseInt(balance),
-            amount: parseFloat(amount.replace('$', ''))
+            balance: parseInt(balance) || 0,
+            // Safely handle amount parsing with fallback to 0
+            amount: parseFloat((amount || '$0').replace(/[^\d.-]/g, '')) || 0
           };
         });
 
@@ -49,53 +52,33 @@ export default function TransactionImporter() {
   };
 
   const handlePaste = (e) => {
+    setTextValue(e.clipboardData.getData('Text'));
     const text = e.clipboardData.getData('text');
     parseTransactions(text);
   };
 
-  const handleDrop = (e) => {
-    e.preventDefault();
-    setIsDragging(false);
-    
-    const file = e.dataTransfer.files[0];
-    const reader = new FileReader();
-    
-    reader.onload = (event) => {
-      parseTransactions(event.target.result);
-    };
-    
-    reader.readAsText(file);
+  const handleChange = (e) => {
+    parseTransactions(e.target.value);
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-6">
-      <div 
+    <div className="w-full space-y-2">
+      <textarea
         className={`
-          border-2 border-dashed rounded-lg p-12
-          flex flex-col items-center justify-center space-y-4
-          transition-colors cursor-pointer
+          border-2 border-dashed rounded-lg 
+          resize-none
+          leading-[0.5rem]
+          focus:outline-none
+          w-full h-12
+          transition-colors
           ${isDragging ? 'border-blue-500 bg-blue-50' : 'border-gray-300'}
           ${error ? 'border-red-300' : ''}
         `}
-        onDrop={handleDrop}
-        onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
-        onDragLeave={() => setIsDragging(false)}
         onPaste={handlePaste}
+        onChange={handleChange} // Optional: if you want to handle manual input
+        value={textValue.replace(/\s+/g, '')} // Optional: if you are managing the input as state
         tabIndex={0}
-      >
-        <Upload className={`w-12 h-12 ${isDragging ? 'text-blue-500' : 'text-gray-400'}`} />
-        <div className="text-center space-y-2">
-          <h3 className="text-lg font-semibold">Import Your WatCard Transactions</h3>
-          <p className="text-gray-500">
-            Copy and paste your transaction history or drop a text file
-          </p>
-          <div className="text-sm text-gray-400">
-            1. Select all (Cmd/Ctrl + A) on the WatCard transaction page<br />
-            2. Copy (Cmd/Ctrl + C)<br />
-            3. Paste here (Cmd/Ctrl + V)
-          </div>
-        </div>
-      </div>
+      />
 
       {error && (
         <Alert variant="destructive">
@@ -112,13 +95,6 @@ export default function TransactionImporter() {
               Successfully imported {transactions.length} transactions
             </AlertDescription>
           </Alert>
-          <button 
-            onClick={downloadCSV}
-            className="flex items-center gap-2"
-          >
-            <Download className="h-4 w-4" />
-            Download CSV
-          </button>
         </div>
       )}
     </div>

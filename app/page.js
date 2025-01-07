@@ -4,7 +4,7 @@ import WatCard from "@/components/watCard";
 import GooseHead from "@/components/goose/gooseHead";
 import TransactionImporter from '@/components/transactionImporter';
 import { useTransactions } from '@/components/providers/transactions-provider';
-
+import { ChevronRight } from 'lucide-react';
 
 export default function Home() {
   const [isGooseHappy, setIsGooseHappy] = useState(false);
@@ -37,10 +37,35 @@ export default function Home() {
     },
     // SLIDE 2
     {
-      title: <h1 className="text-xl sm:text-4xl max-w-full font-bold">Import it up</h1>,
       content: (
-        <div className='w-full'>
-          <TransactionImporter/>
+        <div className='w-full flex flex-col space-y-2'>
+          <div className="bg-amber-50 p-4 rounded-lg">
+              <ol className="space-y-4">
+                <li className="flex items-start">
+                  <div>
+                    <p>Go to WatCard portal:</p>
+                    <p className="font-mono bg-amber-200 px-1 rounded mt-1">https://secure.touchnet.net/C22566_oneweb/</p>
+                  </div>
+                </li>
+                <li className="flex items-start">
+                  <div>
+                    <p>Grab your transactions:</p>
+                    <ul className="mt-2 ml-6 space-y-2 text-gray-600">
+                      <li>Hit "Transaction History"</li>
+                      <li>Set start date to Sept 1</li>
+                      <li>Click "View History"</li>
+                      <li>Change to 100 entries</li>
+                      <li>Select all & copy (CMD/CTRL + A, then C)</li>
+                    </ul>
+                  </div>
+                </li>
+                <li className="flex items-start flex-col">
+                  <p>Drop it below 👇</p>
+                  <TransactionImporter/>
+                </li>
+              </ol>
+            </div>
+          
         </div>
       ),
       buttonText: "Next"
