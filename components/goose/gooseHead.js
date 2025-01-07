@@ -110,7 +110,7 @@ const GooseHead = ({
     return (
         <div className="relative h-full rounded-xl pointer-events-none w-full flex items-center justify-center ">
             {/* NECK */}
-            <svg className="w-screen h-full" style={{ pointerEvents: 'none' }}>
+            <svg className="absolute w-screen h-full " style={{ pointerEvents: 'none' }}>
                 <line
                     x1="50%"
                     y1="100%"
@@ -178,7 +178,7 @@ const GooseHead = ({
                     viewBox="0 0 82.1 52.96"
                     className="absolute transition-all drop-shadow-2xl"
                     style={{
-                        transform: `translateX(-68%) translateY(23%) rotate(${-mouthDeg / 5}deg)`,
+                        transform: `translateX(-69%) translateY(23%) rotate(${-mouthDeg / 5}deg)`,
                         transformOrigin: `100% 62.8%`
                     }}
                 />
@@ -189,7 +189,7 @@ const GooseHead = ({
                     className="absolute transition-all drop-shadow-2xl"
                     style={{
                         transformOrigin: `100% 80%`,
-                        transform: `translateX(-65%)  rotate(${mouthDeg}deg)`
+                        transform: `translateX(-66%)  rotate(${mouthDeg}deg)`
                     }}
                 />
             </div>
