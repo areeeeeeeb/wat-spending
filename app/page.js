@@ -7,6 +7,7 @@ import { useTransactions } from '@/components/providers/transactions-provider';
 import { ChevronRight } from 'lucide-react';
 
 export default function Home() {
+  // GOOSE
   const gooseRef = useRef();
   const [isGooseHappy, setIsGooseHappy] = useState(false);
   const regularNeckLength = 200;
@@ -16,14 +17,15 @@ export default function Home() {
     gooseRef.current.eat(element);
   };
   const targetElementRef = useRef();
-
-  const [currentSlide, setCurrentSlide] = useState(0);
-
+  
+  // TRANSACTION ANALYSIS
   const { transactions } = useTransactions();
   const totalSpent = transactions
     .filter(tx => tx.amount < 0)
     .reduce((sum, tx) => sum + Math.abs(tx.amount), 0);
   
+  // SLIDES
+  const [currentSlide, setCurrentSlide] = useState(0);
   const slides = [
     // SLIDE 1
     {
@@ -96,6 +98,7 @@ export default function Home() {
     }
   };
 
+  // PAGE
   return (
     <div className="h-screen bg-amber-100 flex items-center overflow-hidden">
       {/* Left half - Text content */}

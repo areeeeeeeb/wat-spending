@@ -1,12 +1,14 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Upload, AlertCircle, CheckCircle2, Download } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useTransactions } from './providers/transactions-provider';
+import gsap from 'gsap';
 
 export default function TransactionImporter() {
   const [textValue, setTextValue] = useState('');
+  const textAreaRef = useRef(null);
   const [error, setError] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const { transactions, updateTransactions, downloadCSV } = useTransactions();
@@ -45,6 +47,8 @@ export default function TransactionImporter() {
 
       updateTransactions(parsedTransactions);
       setError(null);
+      handleSlide();
+      
     } catch (e) {
       setError(e.message);
       updateTransactions([]);
@@ -58,27 +62,53 @@ export default function TransactionImporter() {
   };
 
   const handleChange = (e) => {
-    parseTransactions(e.target.value);
+    setTextValue(e.target.value);
+    parseTransactions(textValue);
   };
+
+  const [slide, setSlide] = useState(false);
+  
+  const handleSlide = () => {
+    setTimeout(() => {
+      setSlide(true);
+      setTimeout(() => {
+        setSlide(false);
+        setTextValue('');
+      }, 1000);
+    }, 1000);
+  };
+
 
   return (
     <div className="w-full space-y-2">
-      <textarea
-        className={`
-          border-2 border-dashed rounded-lg 
-          resize-none
-          leading-[0.5rem]
-          focus:outline-none
-          w-full h-12
-          transition-colors
-          ${isDragging ? 'border-blue-500 bg-blue-50' : 'border-gray-300'}
-          ${error ? 'border-red-300' : ''}
-        `}
-        onPaste={handlePaste}
-        onChange={handleChange} // Optional: if you want to handle manual input
-        value={textValue.replace(/\s+/g, '')} // Optional: if you are managing the input as state
-        tabIndex={0}
-      />
+      <div className="relative w-full h-12 overflow-hidden">
+        <textarea
+          ref={textAreaRef}
+          className={`
+            w-full h-full
+            border-2 border-dashed rounded-lg
+            resize-none
+            p-2 text-sm leading-none
+            focus:outline-none
+            transition-colors
+            text-transparent caret-black
+            ${isDragging ? 'border-blue-500 bg-blue-50' : 'border-gray-300'}
+            ${error ? 'border-red-300' : ''}
+          `}
+          onPaste={handlePaste}
+          onChange={handleChange}
+          value={textValue.replace(/\s+/g, '')}
+          tabIndex={0}
+        />
+        <div className="absolute top-0 left-0  text-sm leading-none w-full h-full p-2 pointer-events-none overflow-hidden">
+          <span
+            className={`inline-block transition-transform duration-1000 whitespace-pre-wrap text-black
+              ${slide ? 'translate-x-full' : 'translate-x-0'}`}
+          >
+            {textValue.replace(/\s+/g, '')}
+          </span>
+        </div>
+      </div>
 
       {error && (
         <Alert variant="destructive">
