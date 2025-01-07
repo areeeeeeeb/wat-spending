@@ -121,6 +121,7 @@ const WatCard = ({ studentInfo = {
                   width={(45 * scale * (112.58/135.7))}
                   height={45 * scale}
                   alt="Description"
+                  priority={false}
                 />
                 <span className="flex flex-col items-center">
                   <span className="leading-none font-bold tracking-[.2em] " style={{ fontSize: `${12 * scale}px` }}>
