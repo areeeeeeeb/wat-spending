@@ -23,7 +23,6 @@ const GooseHead = forwardRef(({
     };
 
     // REFERENCES
-    const previousModeRef = useRef(mode);
     const prevAngleRef = useRef(0);
     const headRef = useRef(null);
     const beakRef = useRef(null);
@@ -33,14 +32,13 @@ const GooseHead = forwardRef(({
     const eat = async (targetElement) => {
         if (typeof window === 'undefined' || !headRef.current) return;
         setIsEating(true);
-        previousModeRef.current = mode;
         // Get positions
         const beakRect = beakRef.current.getBoundingClientRect();
         const targetRect = targetElement.getBoundingClientRect();
         // Calculate relative Y position from head to target
         const relativeY = targetRect.top - beakRect.top;
         // Step 2: Open mouth
-        setMouthDeg(26);
+        setMouthDeg(30);
         await new Promise(resolve => setTimeout(resolve, 300));
         // Step 3: Move to rightmost edge
         const screenWidth = window.innerWidth;
