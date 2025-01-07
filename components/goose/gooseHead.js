@@ -26,6 +26,7 @@ const GooseHead = forwardRef(({
     const previousModeRef = useRef(mode);
     const prevAngleRef = useRef(0);
     const headRef = useRef(null);
+    const beakRef = useRef(null);
 
     // EATING
     const [isEating, setIsEating] = useState(false);
@@ -34,7 +35,7 @@ const GooseHead = forwardRef(({
         setIsEating(true);
         previousModeRef.current = mode;
         // Get positions
-        const headRect = headRef.current.getBoundingClientRect();
+        const headRect = beakRef.current.getBoundingClientRect();
         const targetRect = targetElement.getBoundingClientRect();
         // Calculate relative Y position from head to target
         const relativeY = targetRect.top - headRect.top;
@@ -198,6 +199,7 @@ const GooseHead = forwardRef(({
                 <BottomBeak                     
                     width={82.1 * scale} 
                     height={52.96 * scale} 
+                    ref={beakRef}
                     viewBox="0 0 82.1 52.96"
                     className="absolute transition-all drop-shadow-2xl"
                     style={{

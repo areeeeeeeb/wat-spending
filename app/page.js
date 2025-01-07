@@ -69,8 +69,10 @@ export default function Home() {
                   </div>
                 </li>
                 <li className="flex items-start flex-col">
-                  <p onClick={(e) => handleFeed(e.currentTarget)}>Drop it below 👇</p>
-                  <TransactionImporter/>
+                  <p>Drop it below 👇</p>
+                  <div className="w-full" onClick={(e) => handleFeed(e.currentTarget)}>
+                    <TransactionImporter/>
+                  </div>
                 </li>
               </ol>
             </div>
