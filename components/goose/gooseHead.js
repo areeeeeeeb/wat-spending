@@ -35,10 +35,10 @@ const GooseHead = forwardRef(({
         setIsEating(true);
         previousModeRef.current = mode;
         // Get positions
-        const headRect = beakRef.current.getBoundingClientRect();
+        const beakRect = beakRef.current.getBoundingClientRect();
         const targetRect = targetElement.getBoundingClientRect();
         // Calculate relative Y position from head to target
-        const relativeY = targetRect.top - headRect.top;
+        const relativeY = targetRect.top - beakRect.top;
         // Step 2: Open mouth
         setMouthDeg(26);
         await new Promise(resolve => setTimeout(resolve, 300));
