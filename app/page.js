@@ -8,16 +8,13 @@ import { ChevronRight } from 'lucide-react';
 
 export default function Home() {
   const gooseRef = useRef();
-
   const [isGooseHappy, setIsGooseHappy] = useState(false);
   const regularNeckLength = 200;
   const [neckLength, setNeckLength] = useState(regularNeckLength);
-
   const handleFeed = (element) => {
     if (!element) return;
     gooseRef.current.eat(element);
   };
-
   const targetElementRef = useRef();
 
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -70,7 +67,7 @@ export default function Home() {
                   </div>
                 </li>
                 <li className="flex items-start flex-col">
-                  <p>Drop it below 👇</p>
+                  <p onClick={(e) => handleFeed(e.currentTarget)}>Drop it below 👇</p>
                   <TransactionImporter/>
                 </li>
               </ol>

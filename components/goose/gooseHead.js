@@ -151,7 +151,7 @@ const GooseHead = forwardRef(({
                     className='shadow-lg'
                     strokeLinecap="round"
                     style={{
-                        transition: 'x2 0.05s ease-out, y2 0.05s ease-out',
+                        transition: isEating ? "x2 0.2s, y2 0.2s" : "x2 0.04s, y2 0.04s ",
                     }}
                 />
             </svg>
@@ -163,7 +163,7 @@ const GooseHead = forwardRef(({
                 style={{
                     transform: `translate(${position.x}px, ${position.y}px) rotate(${rotation}deg)`,
                     transformOrigin: 'center',
-                    transition: 'transform 0.04s ease-out'
+                    transition: isEating ? "transform 0.2s" : "transform 0.04s",
                 }}
             >
                 {/* SPEECH BUBBLE */}
