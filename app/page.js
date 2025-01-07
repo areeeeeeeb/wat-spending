@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import WatCard from "@/components/watCard";
 import GooseHead from "@/components/goose/gooseHead";
 import TransactionImporter from '@/components/transactionImporter';
@@ -7,9 +7,19 @@ import { useTransactions } from '@/components/providers/transactions-provider';
 import { ChevronRight } from 'lucide-react';
 
 export default function Home() {
+  const gooseRef = useRef();
+
   const [isGooseHappy, setIsGooseHappy] = useState(false);
   const regularNeckLength = 200;
   const [neckLength, setNeckLength] = useState(regularNeckLength);
+
+  const handleFeed = (element) => {
+    if (!element) return;
+    gooseRef.current.eat(element);
+  };
+
+  const targetElementRef = useRef();
+
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const { transactions } = useTransactions();
@@ -130,7 +140,8 @@ export default function Home() {
       <div className="w-1/2 transition-all z-1 max-w-md items-center justify-end">
         <div className="w-[200%] relative">
           <div className="absolute bottom-[5%] left-[13%] md:left-[20%] w-1/2 h-5/6 rounded-md">
-            <GooseHead 
+            <GooseHead
+              ref={gooseRef}
               size={250}
               isHappy={isGooseHappy}
               maxDistance={neckLength}

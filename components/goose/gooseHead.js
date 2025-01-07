@@ -1,19 +1,18 @@
 'use client';
 
-
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
 import Base from './base.svg'
 import TopBeak from './top_beak.svg'
 import BottomBeak from './bottom_beak.svg'
 import SpeechBubble from '../speechBubble';
 
-const GooseHead = ({
+const GooseHead = forwardRef(({
     size = 200,
     isHappy = false,
     maxDistance = size / 5,
     speech = "",
-    mode = "FOLLOW" // New MODE parameter
-}) => {
+    mode = "FOLLOW"
+}, ref) => {
     const scale = size / 111;
     const eyeSize = {
         outer: 30 * scale,
@@ -23,9 +22,40 @@ const GooseHead = ({
     const [position, setPosition] = useState({ x: 0, y: 0 });
     const [rotation, setRotation] = useState(0);
     const [mouthDeg, setMouthDeg] = useState(0);
+    const [isEating, setIsEating] = useState(false);
     const prevAngleRef = useRef(0);
     const containerRef = useRef(null);
     const animationFrameRef = useRef(null);
+    const previousModeRef = useRef(mode);
+
+    const eat = async (targetElement) => {
+        if (typeof window === 'undefined' || !containerRef.current) return;
+        setIsEating(true);
+        previousModeRef.current = mode;
+        // Get positions
+        const headRect = containerRef.current.getBoundingClientRect();
+        const targetRect = targetElement.getBoundingClientRect();
+        // Calculate relative Y position from head to target
+        const relativeY = targetRect.top - headRect.top;
+        // Step 2: Open mouth
+        setMouthDeg(26);
+        await new Promise(resolve => setTimeout(resolve, 300));
+        // Step 3: Move to rightmost edge
+        const screenWidth = window.innerWidth;
+        setPosition({ x: -screenWidth/2, y: relativeY });
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        // Step 4: Close mouth
+        setMouthDeg(0);
+        await new Promise(resolve => setTimeout(resolve, 300));
+        // Step 5: Return to original position and mode
+        setPosition({ x: 0, y: 0 });
+        setIsEating(false);
+    };
+
+    // Expose eat function to parent
+    useImperativeHandle(ref, () => ({
+        eat
+    }), []);
 
     useEffect(() => {
         const handleKeyDown = (event) => {
@@ -35,7 +65,6 @@ const GooseHead = ({
                 setMouthDeg((prev) => Math.max(prev - 40, 0)); // Decrease mouthDeg, min 0
             }
         };
-
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
     }, []);
@@ -45,11 +74,12 @@ const GooseHead = ({
     }, [isHappy]);
 
     useEffect(() => {
+        if (typeof window === 'undefined') return; // Guard for SSR
+        if (isEating) return; // Skip normal movement if eating
+
         if (mode === "BOBBING") {
             const animate = (time) => {
-                // Complete cycle every 2 seconds
                 const cycle = (time / 2000) % 1;
-                // Use sine wave for smooth movement
                 const y = -16 + (10 * Math.sin(cycle * 2 * Math.PI));
                 setPosition(prev => ({ x: -100, y }));
                 animationFrameRef.current = requestAnimationFrame(animate);
@@ -60,7 +90,7 @@ const GooseHead = ({
                     cancelAnimationFrame(animationFrameRef.current);
                 }
             };
-        } if (mode === "FOLLOW") {
+        } else if (mode === "FOLLOW") {
             const handleMouseMove = (event) => {
                 if (!containerRef.current) return;
 
@@ -105,7 +135,7 @@ const GooseHead = ({
             window.addEventListener('mousemove', handleMouseMove);
             return () => window.removeEventListener('mousemove', handleMouseMove);
         }
-    }, [mode, maxDistance]);
+    }, [mode, maxDistance, isEating]);
 
     return (
         <div className="relative h-full rounded-xl pointer-events-none w-full flex items-center justify-center ">
@@ -194,7 +224,7 @@ const GooseHead = ({
                 />
             </div>
     </div>
-  );
-};
+    );
+});
 
 export default GooseHead;
