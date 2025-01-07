@@ -4,9 +4,11 @@ import React, { useState, useRef } from 'react';
 import { Upload, AlertCircle, CheckCircle2, Download } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useTransactions } from './providers/transactions-provider';
-import gsap from 'gsap';
+
+import { useGoose } from '@/components/providers/goose-provider';
 
 export default function TransactionImporter() {
+  const gooseRef = useGoose();
   const [textValue, setTextValue] = useState('');
   const textAreaRef = useRef(null);
   const [error, setError] = useState(null);
@@ -48,7 +50,7 @@ export default function TransactionImporter() {
       updateTransactions(parsedTransactions);
       setError(null);
       handleSlide();
-      
+      gooseRef.current.eat(textAreaRef.current);
     } catch (e) {
       setError(e.message);
       updateTransactions([]);
