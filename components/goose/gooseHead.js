@@ -6,6 +6,7 @@ import TopBeak from './top_beak.svg'
 import BottomBeak from './bottom_beak.svg'
 import SpeechBubble from '../speechBubble';
 import AnchoredLine from '../misc/anchoredLine';
+import gsap from 'gsap';
 
 const GooseHead = forwardRef(({
     size = 200,
@@ -14,27 +15,26 @@ const GooseHead = forwardRef(({
     speech = "",
     mode = "FOLLOW"
 }, ref) => {
+    // SCALE
     const scale = size / 111;
     const eyeSize = {
         outer: 30 * scale,
         inner: 12 * scale
     };
 
-    const [position, setPosition] = useState({ x: 0, y: 0 });
-    const [rotation, setRotation] = useState(0);
-    const [mouthDeg, setMouthDeg] = useState(0);
-    const [isEating, setIsEating] = useState(false);
-    const prevAngleRef = useRef(0);
-    const containerRef = useRef(null);
-    const animationFrameRef = useRef(null);
+    // REFERENCES
     const previousModeRef = useRef(mode);
+    const prevAngleRef = useRef(0);
+    const headRef = useRef(null);
 
+    // EATING
+    const [isEating, setIsEating] = useState(false);
     const eat = async (targetElement) => {
-        if (typeof window === 'undefined' || !containerRef.current) return;
+        if (typeof window === 'undefined' || !headRef.current) return;
         setIsEating(true);
         previousModeRef.current = mode;
         // Get positions
-        const headRect = containerRef.current.getBoundingClientRect();
+        const headRect = headRef.current.getBoundingClientRect();
         const targetRect = targetElement.getBoundingClientRect();
         // Calculate relative Y position from head to target
         const relativeY = targetRect.top - headRect.top;
@@ -52,12 +52,17 @@ const GooseHead = forwardRef(({
         setPosition({ x: 0, y: 0 });
         setIsEating(false);
     };
-
     // Expose eat function to parent
     useImperativeHandle(ref, () => ({
         eat
     }), []);
 
+    // EMOTIONS
+    useEffect(() => {
+        setMouthDeg(isHappy ? 26 : 0);
+    }, [isHappy]);
+    
+    // CONTROLS
     useEffect(() => {
         const handleKeyDown = (event) => {
             if (event.key === "ArrowUp") {
@@ -70,32 +75,33 @@ const GooseHead = forwardRef(({
         return () => window.removeEventListener("keydown", handleKeyDown);
     }, []);
 
-    useEffect(() => {
-        setMouthDeg(isHappy ? 26 : 0);
-    }, [isHappy]);
-
+    // HEAD TRANSFORMATIONS
+    const [position, setPosition] = useState({ x: 0, y: 0 });
+    const [rotation, setRotation] = useState(0);
+    const [mouthDeg, setMouthDeg] = useState(0);
     useEffect(() => {
         if (typeof window === 'undefined') return; // Guard for SSR
         if (isEating) return; // Skip normal movement if eating
 
         if (mode === "BOBBING") {
-            const animate = (time) => {
-                const cycle = (time / 2000) % 1;
-                const y = -16 + (10 * Math.sin(cycle * 2 * Math.PI));
-                setPosition(prev => ({ x: -100, y }));
-                animationFrameRef.current = requestAnimationFrame(animate);
-            };
-            animationFrameRef.current = requestAnimationFrame(animate);
+            const bobbingAnimation = gsap.to({}, {
+                duration: 2, // 2 seconds for a full cycle
+                repeat: -1, // Repeat indefinitely
+                onUpdate: () => {
+                    const cycle = (bobbingAnimation.progress() % 1);
+                    const y = -16 + (10 * Math.sin(cycle * 2 * Math.PI));
+                    setPosition({ x: -100, y });
+                },
+                onUpdateParams: []
+            });
             return () => {
-                if (animationFrameRef.current) {
-                    cancelAnimationFrame(animationFrameRef.current);
-                }
+                bobbingAnimation.kill();
             };
         } else if (mode === "FOLLOW") {
             const handleMouseMove = (event) => {
-                if (!containerRef.current) return;
+                if (!headRef.current) return;
 
-                const bounds = containerRef.current.getBoundingClientRect();
+                const bounds = headRef.current.getBoundingClientRect();
                 const centerX = bounds.left + bounds.width / 2;
                 const centerY = bounds.top + bounds.height / 2;
 
@@ -120,15 +126,11 @@ const GooseHead = forwardRef(({
                 // Normalize to prevent sudden jumps
                 const prevAngle = prevAngleRef.current;
                 if (Math.abs(angle - prevAngle) > 180) {
-                    if (angle < prevAngle) {
-                        angle += 360;
-                    } else {
-                        angle -= 360;
-                    }
+                    if (angle < prevAngle) angle += 360;
+                    else angle -= 360;
                 }
                 while (angle > prevAngle + 180) angle -= 360;
                 while (angle < prevAngle - 180) angle += 360;
-
                 prevAngleRef.current = angle;
                 setRotation(angle);
             };
@@ -138,6 +140,7 @@ const GooseHead = forwardRef(({
         }
     }, [mode, maxDistance, isEating]);
 
+    // COMPONENT
     return (
         <div className="relative h-full rounded-xl pointer-events-none w-full flex items-center justify-center ">
             {/* NECK */}
@@ -149,7 +152,7 @@ const GooseHead = forwardRef(({
             {/* HEAD + SPEECH BUBBLE */}
             <div
                 className="absolute z-20 flex items-center justify-center"
-                ref={containerRef}
+                ref={headRef}
                 style={{
                     transform: `translate(${position.x}px, ${position.y}px) rotate(${rotation}deg)`,
                     transformOrigin: 'center',
