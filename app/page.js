@@ -5,10 +5,11 @@ import GooseHead from "@/components/goose/gooseHead";
 import TransactionImporter from '@/components/transactionImporter';
 import { useTransactions } from '@/components/providers/transactions-provider';
 import { ChevronRight } from 'lucide-react';
+import { useGoose } from '@/components/providers/goose-provider';
 
 export default function Home() {
   // GOOSE
-  const gooseRef = useRef();
+  const gooseRef = useGoose();
   const [isGooseHappy, setIsGooseHappy] = useState(false);
   const regularNeckLength = 200;
   const [neckLength, setNeckLength] = useState(regularNeckLength);
@@ -16,7 +17,6 @@ export default function Home() {
     if (!element) return;
     gooseRef.current.eat(element);
   };
-  const targetElementRef = useRef();
   
   // TRANSACTION ANALYSIS
   const { transactions } = useTransactions();
@@ -69,10 +69,8 @@ export default function Home() {
                   </div>
                 </li>
                 <li className="flex items-start flex-col">
-                  <p>Drop it below 👇</p>
-                  <div className="w-full" onClick={(e) => handleFeed(e.currentTarget)}>
-                    <TransactionImporter/>
-                  </div>
+                  <p>Drop it below 👇</p>                  
+                  <TransactionImporter/>
                 </li>
               </ol>
             </div>

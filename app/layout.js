@@ -1,6 +1,7 @@
 import localFont from "next/font/local";
 import "./globals.css";
 import { TransactionsProvider } from "@/components/providers/transactions-provider";
+import { GooseProvider } from '@/components/providers/goose-provider';
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -25,7 +26,9 @@ export default function RootLayout({ children }) {
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <TransactionsProvider>
-          {children}
+          <GooseProvider>
+            {children}
+          </GooseProvider>
         </TransactionsProvider>
       </body>
     </html>
