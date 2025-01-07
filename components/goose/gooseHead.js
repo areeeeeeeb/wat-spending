@@ -5,6 +5,7 @@ import Base from './base.svg'
 import TopBeak from './top_beak.svg'
 import BottomBeak from './bottom_beak.svg'
 import SpeechBubble from '../speechBubble';
+import AnchoredLine from '../misc/anchoredLine';
 
 const GooseHead = forwardRef(({
     size = 200,
@@ -140,22 +141,11 @@ const GooseHead = forwardRef(({
     return (
         <div className="relative h-full rounded-xl pointer-events-none w-full flex items-center justify-center ">
             {/* NECK */}
-            <svg className="absolute w-screen h-full " style={{ pointerEvents: 'none' }}>
-                <line
-                    x1="50%"
-                    y1="100%"
-                    x2={`calc(50% + ${position.x}px)`}
-                    y2={`calc(50% + ${position.y}px)`}
-                    stroke="black"
-                    strokeWidth={`${size / 2}`}
-                    className='shadow-lg'
-                    strokeLinecap="round"
-                    style={{
-                        transition: isEating ? "x2 0.2s, y2 0.2s" : "x2 0.04s, y2 0.04s ",
-                    }}
-                />
-            </svg>
-
+            <AnchoredLine
+                position={position} 
+                duration={0.15} 
+                strokeWidth={size/2} 
+            />
             {/* HEAD + SPEECH BUBBLE */}
             <div
                 className="absolute z-20 flex items-center justify-center"
@@ -163,7 +153,7 @@ const GooseHead = forwardRef(({
                 style={{
                     transform: `translate(${position.x}px, ${position.y}px) rotate(${rotation}deg)`,
                     transformOrigin: 'center',
-                    transition: isEating ? "transform 0.2s" : "transform 0.04s",
+                    transition:  "transform 0.15s ease-out" 
                 }}
             >
                 {/* SPEECH BUBBLE */}
@@ -180,7 +170,7 @@ const GooseHead = forwardRef(({
                     viewBox="0 0 111 111" 
                     fill="none" 
                     xmlns="http://www.w3.org/2000/svg"
-                    className="absolute drop-shadow-2xl"
+                    className="absolute drop-shadow-2xl "
                 />
                 
                 {/* EYEBALL */}
