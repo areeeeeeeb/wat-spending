@@ -33,6 +33,9 @@ const GooseHead = forwardRef(({
         if (typeof window === 'undefined' || !headRef.current) return;
         setIsEating(true);
         // Get positions
+        setRotation(Math.round(rotation / 360) * 360);
+        setPosition({ x: 0, y: 0 });
+        await new Promise(resolve => setTimeout(resolve, 200));
         const beakRect = beakRef.current.getBoundingClientRect();
         const targetRect = targetElement.getBoundingClientRect();
         // Calculate relative Y position from head to target
@@ -46,9 +49,10 @@ const GooseHead = forwardRef(({
         await new Promise(resolve => setTimeout(resolve, 1000));
         // Step 4: Close mouth
         setMouthDeg(0);
-        await new Promise(resolve => setTimeout(resolve, 300));
+        await new Promise(resolve => setTimeout(resolve, 100));
         // Step 5: Return to original position and mode
         setPosition({ x: 0, y: 0 });
+        await new Promise(resolve => setTimeout(resolve, 350));
         setIsEating(false);
     };
     // Expose eat function to parent
