@@ -1,5 +1,3 @@
-'use client';
-
 import React, { useState, useRef } from 'react';
 import { Upload, AlertCircle, CheckCircle2, Download } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -15,7 +13,7 @@ export default function TransactionImporter() {
   const [isDragging, setIsDragging] = useState(false);
   const { transactions, updateTransactions, downloadCSV } = useTransactions();
 
-  const parseTransactions = (text) => {
+  const parseTransactions = async (text) => {
     try {
       const lines = text.split('\n');
       const dataStartIndex = lines.findIndex(line => line.includes('Date - Time'));
@@ -51,8 +49,11 @@ export default function TransactionImporter() {
       setError(null);
       handleSlide();
       gooseRef.current.eat(textAreaRef.current);
+      await new Promise(resolve => setTimeout(resolve, 1800));
+      gooseRef.current.speak(`Successfully imported ${transactions.length} transactions`, 4000);
     } catch (e) {
       setError(e.message);
+      gooseRef.current.speak(`${error}`, 4000);
       updateTransactions([]);
     }
   };
@@ -111,24 +112,6 @@ export default function TransactionImporter() {
           </span>
         </div>
       </div>
-
-      {error && (
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
-
-      {transactions.length > 0 && (
-        <div className="flex justify-between items-center">
-          <Alert>
-            <CheckCircle2 className="h-4 w-4" />
-            <AlertDescription>
-              Successfully imported {transactions.length} transactions
-            </AlertDescription>
-          </Alert>
-        </div>
-      )}
     </div>
   );
 }

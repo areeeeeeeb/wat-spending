@@ -12,7 +12,6 @@ const GooseHead = forwardRef(({
     size = 200,
     isHappy = false,
     maxDistance = size / 5,
-    speech = "",
     mode = "FOLLOW"
 }, ref) => {
     // SCALE
@@ -26,6 +25,19 @@ const GooseHead = forwardRef(({
     const prevAngleRef = useRef(0);
     const headRef = useRef(null);
     const beakRef = useRef(null);
+
+    // SPEAKING
+    const [isSpeaking, setIsSpeaking] = useState(false);
+    const [dialogue, setDialogue] = useState(null);
+    const speak = async (dialogue, duration = 1000) => {
+        await new Promise(resolve => setTimeout(resolve, 100));
+        setIsSpeaking(true);
+        setMouthDeg(30);
+        setDialogue(dialogue);
+        await new Promise(resolve => setTimeout(resolve, duration));
+        setMouthDeg(0);
+        setIsSpeaking(false);
+    };
 
     // EATING
     const [isEating, setIsEating] = useState(false);
@@ -48,7 +60,7 @@ const GooseHead = forwardRef(({
         setPosition({ x: -screenWidth/2, y: relativeY });
         await new Promise(resolve => setTimeout(resolve, 1000));
         // Step 4: Close mouth
-        setMouthDeg(0);
+        if (!isSpeaking) setMouthDeg(0);
         await new Promise(resolve => setTimeout(resolve, 100));
         // Step 5: Return to original position and mode
         setPosition({ x: 0, y: 0 });
@@ -57,7 +69,8 @@ const GooseHead = forwardRef(({
     };
     // Expose eat function to parent
     useImperativeHandle(ref, () => ({
-        eat
+        eat,
+        speak
     }), []);
 
     // EMOTIONS
@@ -163,9 +176,9 @@ const GooseHead = forwardRef(({
                 }}
             >
                 {/* SPEECH BUBBLE */}
-                {mouthDeg > 20 && speech != ""  &&(
+                {isSpeaking && dialogue != ""  && mouthDeg > 0 &&(
                     <div className='translate-x-[-120%] drop-shadow-none '> 
-                        <SpeechBubble text={speech} />
+                        <SpeechBubble text={dialogue} />
                     </div>
                 )}
                 
