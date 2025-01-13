@@ -4,7 +4,7 @@ import WatCard from "@/components/watCard";
 import GooseHead from "@/components/goose/gooseHead";
 import TransactionImporter from '@/components/transactionImporter';
 import { useTransactions } from '@/components/providers/transactions-provider';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Space, Underline } from 'lucide-react';
 import { useGoose } from '@/components/providers/goose-provider';
 
 export default function Home() {
@@ -13,11 +13,6 @@ export default function Home() {
   const [isGooseHappy, setIsGooseHappy] = useState(false);
   const regularNeckLength = 200;
   const [neckLength, setNeckLength] = useState(regularNeckLength);
-  const handleFeed = (element) => {
-    if (!element) return;
-    gooseRef.current.eat(element);
-  };
-  
   // TRANSACTION ANALYSIS
   const { transactions } = useTransactions();
   const totalSpent = transactions
@@ -52,8 +47,9 @@ export default function Home() {
               <ol className="space-y-4">
                 <li className="flex items-start">
                   <div>
-                    <p>Go to WatCard portal:</p>
-                    <p className="font-mono bg-amber-200 px-1 rounded mt-1">https://secure.touchnet.net/C22566_oneweb/</p>
+                    <p>Sign in to the                      
+                      <a className="text-yellow-400 " href="https://secure.touchnet.net/C22566_oneweb/"> WatCard portal</a>
+                    </p>
                   </div>
                 </li>
                 <li className="flex items-start">
@@ -77,18 +73,20 @@ export default function Home() {
           
         </div>
       ),
-      buttonText: "Next"
+      buttonText: "Analyze it!"
     },
     // SLIDE 3
     {
-      title: <h1 className="text-xl sm:text-4xl max-w-full font-bold">You spent</h1>,
       content: (
-        <div>
-          <h2>Transaction Analysis</h2>
-          <p>Total Spent: ${totalSpent.toFixed(2)}</p>
+        <div className='w-full p-3 aspect-square rounded-2xl items-center flex  '>
+          <p className="text-5xl">
+            You ate <br />
+            <em> <strong> ${totalSpent.toFixed(2)}  </strong> </em> <br />
+            worth of food.
+          </p>
         </div>
       ),
-      buttonText: "Next"
+      buttonText: ""
     }
   ];
 
