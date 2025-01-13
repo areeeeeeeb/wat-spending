@@ -50,7 +50,7 @@ export default function TransactionImporter() {
       handleSlide();
       gooseRef.current.eat(textAreaRef.current);
       await new Promise(resolve => setTimeout(resolve, 1800));
-      gooseRef.current.speak(`Successfully imported ${transactions.length} transactions`, 4000);
+      gooseRef.current.speak(`Successfully imported ${parsedTransactions.length} transactions`, 4000);
     } catch (e) {
       setError(e.message);
       gooseRef.current.speak(`${error}`, 4000);
