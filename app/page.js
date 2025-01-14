@@ -115,7 +115,7 @@ export default function Home() {
               {slide.title}
               {slide.content}
               <button
-                className="w-fit sm:text-2xl px-4 py-1 bg-yellow-400 rounded-md hover:rotate-2 hover:scale-110 transition-all"
+                className="w-fit sm:text-2xl px-4 py-1 bg-yellow-400 rounded-md hover:rotate-2 hover:scale-110 transition-all disabled:bg-yellow-400/40 disabled:cursor-not-allowed"
                 onMouseEnter={() => {
                   setIsGooseHappy(true);
                   setNeckLength(regularNeckLength * 1.2);
@@ -123,8 +123,9 @@ export default function Home() {
                 onMouseLeave={() => {
                   setIsGooseHappy(false);
                   setNeckLength(regularNeckLength);
-                }}   
+                }}
                 onClick={handleNextSlide}
+                disabled={index === 1}
               >
                 {slide.buttonText}
               </button>
