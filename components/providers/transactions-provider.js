@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useMemo, useEffect } from 'react';
 
 const TransactionsContext = createContext(null);
 
@@ -43,13 +43,19 @@ export function TransactionsProvider({ children }) {
     document.body.removeChild(link);
   }, [csvContent]);
 
+  const totalSpent = useMemo(() => {
+    return transactions
+      .reduce((sum, tx) => sum + Math.abs(tx.amount), 0);
+  }, [transactions]);
+
   return (
     <TransactionsContext.Provider 
       value={{ 
         transactions, 
         csvContent, 
         updateTransactions, 
-        downloadCSV 
+        downloadCSV,
+        totalSpent
       }}
     >
       {children}

@@ -14,10 +14,7 @@ export default function Home() {
   const regularNeckLength = 200;
   const [neckLength, setNeckLength] = useState(regularNeckLength);
   // TRANSACTION ANALYSIS
-  const { transactions } = useTransactions();
-  const totalSpent = transactions
-    .filter(tx => tx.amount < 0)
-    .reduce((sum, tx) => sum + Math.abs(tx.amount), 0);
+  const { transactions, totalSpent } = useTransactions();
   
   // SLIDES
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -41,6 +38,7 @@ export default function Home() {
     },
     // SLIDE 2
     {
+      disabled: transactions.length == 0,
       content: (
         <div className='w-full flex flex-col space-y-2'>
           <div className="bg-amber-50 p-4 rounded-lg">
@@ -125,7 +123,7 @@ export default function Home() {
                   setNeckLength(regularNeckLength);
                 }}
                 onClick={handleNextSlide}
-                disabled={index === 1}
+                disabled={slide.disabled}
               >
                 {slide.buttonText}
               </button>
