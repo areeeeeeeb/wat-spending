@@ -25,19 +25,23 @@ export default function TransactionImporter() {
       const parsedTransactions = lines.slice(dataStartIndex + 1)
         .filter(line => line.match(/^\d{4}-\d{2}-\d{2}/))
         .map(line => {
-          const parts = line.split(/(?<=\d)\s+(?=\d{3}\s+:|[A-Z]+\s+\()|(?<=\))\s+(?=\d{5}\s+:|[A-Z]+[-\w]+)|(?<=:)\s+(?=\d{5}\s+:|[A-Z]+[-\w]+)|(?<=\w)\s+(?=Approved)|(?<=Approved)\s+(?=\d+)|(?<=\d)\s+(?=\$)/).filter(Boolean);
-          
-          // Safely extract values with default values if undefined
-          const [dateTime = '', type = '', terminal = '', status = '', balance = '0', units = '', amount = '$0'] = parts;
-          
+          const parts = line.split('\t');
+          const [dateTimeStr = '', type = '', terminal = '', status = '', balance = '0', units = '', amount = ''] = parts;          
+          if (!amount || amount === '$0') {
+            throw new Error('Amount column missing. Please widen the window and try again.');
+          }
+          const dateTime = new Date(dateTimeStr);
+          if (isNaN(dateTime)) {
+            throw new Error(`Invalid date format: ${dateTimeStr}`);
+          }
           return {
             dateTime,
-            type: type.split(' : ')[1] || type,
-            location: terminal.split(' : ')[1] || terminal,
+            type,
+            terminal,
             status,
-            balance: parseInt(balance) || 0,
-            // Safely handle amount parsing with fallback to 0
-            amount: parseFloat((amount || '$0').replace(/[^\d.-]/g, '')) || 0
+            balance,
+            units,
+            amount: parseFloat(amount.replace(/[^\d.-]/g, '')) || 0
           };
         });
 
@@ -100,6 +104,11 @@ export default function TransactionImporter() {
           `}
           onPaste={handlePaste}
           onChange={handleChange}
+          onKeyDown={(e) => {
+            if (e.key === 'Backspace') {
+              setTextValue('');
+            }
+          }}
           value={textValue.replace(/\s+/g, '')}
           tabIndex={0}
         />
@@ -112,6 +121,10 @@ export default function TransactionImporter() {
           </span>
         </div>
       </div>
+
+      <button onClick={downloadCSV}>
+          Download Transactions CSV
+        </button>
     </div>
   );
 }
