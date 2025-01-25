@@ -42,56 +42,49 @@ export function TransactionsProvider({ children }) {
   }, [transactions]);
 
   const getLongestSpendingStreak = useMemo(() => {
-    const sortedTransactions = [...transactions]
-      .sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime));
-
-    // Get unique dates with spending
-    const spendingDates = new Set(
-      sortedTransactions
-        .filter(tx => tx.amount >= 0)
-        .map(tx => new Date(tx.dateTime).toISOString().split('T')[0])
-    );
-
-    let currentStreak = 0;
     let longestStreak = 0;
-    let currentStreakStart = null;
+    let currentStreak = 0;
     let longestStreakStart = null;
     let longestStreakEnd = null;
-
-    // Convert Set to sorted array of dates
-    const sortedDates = Array.from(spendingDates).sort();
-
-    for (let i = 0; i < sortedDates.length; i++) {
-      const currentDate = new Date(sortedDates[i]);
-      const previousDate = i > 0 ? new Date(sortedDates[i - 1]) : null;
-      // Check if this is the start of a new streak
-      if (!previousDate || (currentDate - previousDate) / (1000 * 60 * 60 * 24) > 1) {
-        // If we found a longer streak, update the longest streak info
+    let currentStreakStart = null;
+    let lastDate = null;
+    const sortedTransactions = [...transactions].sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime));
+   
+    sortedTransactions.forEach(tx => {
+      if (tx.amount < 0) { // Spending transaction
+        const currentDate = new Date(tx.dateTime);
+        currentDate.setHours(0, 0, 0, 0);
+        if (lastDate) {
+          lastDate.setHours(0, 0, 0, 0);
+          const timeDiff = currentDate - lastDate;
+          const daysBetween = timeDiff / (1000 * 60 * 60 * 24);
+          if (daysBetween === 1) {
+            currentStreak++;
+          } else if (daysBetween > 1) {
+            currentStreak = 1;
+            currentStreakStart = tx.dateTime;
+          }
+        } else {
+          currentStreak = 1;
+          currentStreakStart = tx.dateTime;
+        }
+        // Update longest streak
         if (currentStreak > longestStreak) {
           longestStreak = currentStreak;
-          longestStreakStart = new Date(sortedDates[i - currentStreak]);
-          longestStreakEnd = previousDate;
+          longestStreakStart = currentStreakStart;
+          longestStreakEnd = tx.dateTime;
         }
-        // Start new streak
-        currentStreak = 1;
-        currentStreakStart = currentDate;
       } else {
-        // Continue current streak
-        currentStreak++;
+        currentStreak = 0;
       }
-    }
-    // Check one last time in case the longest streak ends at the last date
-    if (currentStreak > longestStreak) {
-      longestStreak = currentStreak;
-      longestStreakStart = currentStreakStart;
-      longestStreakEnd = new Date(sortedDates[sortedDates.length - 1]);
-    }
+      lastDate = tx.dateTime;
+    });
     return {
       streakLength: longestStreak,
       startDate: longestStreakStart,
       endDate: longestStreakEnd
     };
-  }, [transactions]);
+   }, [transactions]);
 
   return (
     <TransactionsContext.Provider 
