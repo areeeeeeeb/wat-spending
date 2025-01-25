@@ -14,8 +14,17 @@ export default function Home() {
   const regularNeckLength = 200;
   const [neckLength, setNeckLength] = useState(regularNeckLength);
   // TRANSACTION ANALYSIS
-  const { transactions, totalSpent } = useTransactions();
-  
+  const { transactions, getLongestSpendingStreak, totalSpent } = useTransactions();
+  const { streakLength, startDate, endDate } = getLongestSpendingStreak;
+  const formatDate = (date) => {
+    if (!date) return 'N/A';
+    try {
+      return new Date(date).toLocaleDateString();
+    } catch (error) {
+      return 'Invalid Date';
+    }
+  };
+
   // SLIDES
   const [currentSlide, setCurrentSlide] = useState(0);
   const slides = [
@@ -84,7 +93,20 @@ export default function Home() {
           </p>
         </div>
       ),
-      buttonText: ""
+      buttonText: "→"
+    },
+    // SLIDE 4
+    {
+      content: (
+        <div className='w-full p-3 aspect-square rounded-2xl items-center flex  '>
+          <span className="text-5xl">
+            Your longest spending streak was  <br />
+            <em> <strong> {streakLength} days. </strong> </em> <br />
+            <p className='text-xl'> {formatDate(startDate)} to {formatDate(endDate) } </p>
+          </span>
+        </div>
+      ),
+      buttonText: "→"
     }
   ];
 
