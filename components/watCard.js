@@ -27,7 +27,7 @@ const WatCard = ({ studentInfo = {
   lastName: "GOOSE",
   program: "MATHEMATICS",
   status: "UNDERGRADUATE",
-  number: "21063865",
+  number: "12345678",
   imageUrl: "https://www.allaboutbirds.org/guide/assets/photo/59953191-480px.jpg"
 } }) => {
   const containerRef = useRef(null);
