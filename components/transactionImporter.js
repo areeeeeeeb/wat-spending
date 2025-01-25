@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Upload, AlertCircle, CheckCircle2, Download } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useTransactions } from './providers/transactions-provider';
@@ -12,6 +12,23 @@ export default function TransactionImporter() {
   const [error, setError] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const { transactions, updateTransactions, downloadCSV } = useTransactions();
+
+  const useSampleData = () => {
+    fetch('/sampleTransactions.txt')
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Failed to fetch sample transactions');
+        }
+        return response.text();
+      })
+      .then((data) => {
+        setTextValue(data);
+        parseTransactions(data);
+      })
+      .catch((error) => {
+        console.error('Error loading sample data:', error);
+      });
+  };
 
   const parseTransactions = async (text) => {
     try {
@@ -91,10 +108,12 @@ export default function TransactionImporter() {
       <div className="relative w-full h-12 overflow-hidden">
         <textarea
           ref={textAreaRef}
+          spellCheck={false}
           className={`
             w-full h-full
             border-2 border-dashed rounded-lg
-            resize-none
+            resize-none over
+            overflow-hidden
             p-2 text-sm leading-none
             focus:outline-none
             transition-colors
@@ -121,10 +140,7 @@ export default function TransactionImporter() {
           </span>
         </div>
       </div>
-
-      <button onClick={downloadCSV}>
-          Download Transactions CSV
-        </button>
+      <button onClick={useSampleData} className='text-xs italic text-black/30'> (or load sample data) </button>
     </div>
   );
 }
