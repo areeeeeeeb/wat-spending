@@ -29,15 +29,21 @@ const GooseHead = forwardRef(({
     // SPEAKING
     const [isSpeaking, setIsSpeaking] = useState(false);
     const [dialogue, setDialogue] = useState(null);
+    const [mouthDeg, setMouthDeg] = useState(0);
     const speak = async (dialogue, duration = 1000) => {
         await new Promise(resolve => setTimeout(resolve, 100));
         setIsSpeaking(true);
         setMouthDeg(30);
         setDialogue(dialogue);
         await new Promise(resolve => setTimeout(resolve, duration));
+        setDialogue("");
         setMouthDeg(0);
         setIsSpeaking(false);
     };
+
+    useEffect(() => {
+        if (mouthDeg == 0 && isSpeaking) setIsSpeaking(false);
+    }, [mouthDeg]);
 
     // EATING
     const [isEating, setIsEating] = useState(false);
@@ -94,7 +100,6 @@ const GooseHead = forwardRef(({
     // HEAD TRANSFORMATIONS
     const [position, setPosition] = useState({ x: 0, y: 0 });
     const [rotation, setRotation] = useState(0);
-    const [mouthDeg, setMouthDeg] = useState(0);
     useEffect(() => {
         if (typeof window === 'undefined') return; // Guard for SSR
         if (isEating) return; // Skip normal movement if eating
