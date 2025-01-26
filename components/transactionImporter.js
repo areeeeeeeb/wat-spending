@@ -140,7 +140,7 @@ export default function TransactionImporter() {
           </span>
         </div>
       </div>
-      <button onClick={useSampleData} className='text-xs italic text-black/30'> (or load sample data) </button>
+      <button onClick={useSampleData} className='text-xs italic text-black/30 outline-none'> (or load sample data) </button>
     </div>
   );
 }

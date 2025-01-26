@@ -14,7 +14,7 @@ export default function Home() {
   const regularNeckLength = 200;
   const [neckLength, setNeckLength] = useState(regularNeckLength);
   // TRANSACTION ANALYSIS
-  const { transactions, getLongestSpendingStreak, totalSpent } = useTransactions();
+  const { transactions, getLongestSpendingStreak, totalSpent, uniqueTerminals, mostCommonTerminal } = useTransactions();
   const { streakLength, startDate, endDate } = getLongestSpendingStreak;
   const formatDate = (date) => {
     if (!date) return 'N/A';
@@ -50,12 +50,13 @@ export default function Home() {
       disabled: transactions.length == 0,
       content: (
         <div className='w-full flex flex-col space-y-2'>
-          <div className="bg-amber-50 p-4 rounded-lg">
+          <div className="py-4 rounded-lg">
               <ol className="space-y-4">
                 <li className="flex items-start">
                   <div>
-                    <p>Sign in to the                      
-                      <a className="text-yellow-400 " href="https://secure.touchnet.net/C22566_oneweb/"> WatCard portal</a>
+                    <p>
+                      <span>Sign in to the </span>
+                      <a className="text-yellow-400 underline italic" href="https://secure.touchnet.net/C22566_oneweb/TransactionHistory/Transactions" target="_blank">WatCard portal</a>
                     </p>
                   </div>
                 </li>
@@ -103,6 +104,19 @@ export default function Home() {
             Your longest spending streak was  <br />
             <em> <strong> {streakLength} days. </strong> </em> <br />
             <p className='text-xl'> {formatDate(startDate)} to {formatDate(endDate) } </p>
+          </span>
+        </div>
+      ),
+      buttonText: "→"
+    },
+    // SLIDE 5
+    {
+      content: (
+        <div className='w-full p-3 aspect-square rounded-2xl items-center flex  '>
+          <span className="text-5xl">
+            Out of 
+            <em> <strong> {uniqueTerminals} vendors </strong> </em> <br />
+            {mostCommonTerminal.terminal} stood out.
           </span>
         </div>
       ),
