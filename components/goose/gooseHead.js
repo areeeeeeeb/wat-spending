@@ -81,7 +81,7 @@ const GooseHead = forwardRef(({
 
     // EMOTIONS
     useEffect(() => {
-        setMouthDeg(isHappy ? 26 : 0);
+        if (!isEating) setMouthDeg(isHappy ? 26 : 0);
     }, [isHappy]);
     
     // CONTROLS

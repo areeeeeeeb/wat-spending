@@ -132,19 +132,25 @@ export default function Home() {
 
   // PAGE
   return (
-    <div className="h-screen bg-amber-100 flex items-center overflow-hidden">
+    <div className="relative w-full h-screen bg-amber-100 flex items-center mask-gradient-right overflow-hidden">
       {/* Left half - Text content */}
-      <div className="w-1/2 overflow-hidden relative">
+      <div
+        className="w-full overflow-hidden relative"
+        style={{
+          WebkitMaskImage: "linear-gradient(to right, black 50%, transparent 50%)",
+          maskImage: "linear-gradient(to right, black 50%, transparent 50%)",
+        }}
+      >
         <div 
-          className="flex transition-transform duration-500 ease-in-out"
+          className="flex stransition-transform duration-500 ease-in-out"
           style={{ 
-            transform: `translateX(-${currentSlide * 100}%)`,
+            transform: `translateX(-${currentSlide * 50}%)`,
           }}
         >
           {slides.map((slide, index) => (
             <div 
               key={index}
-              className="flex-shrink-0 w-full flex flex-col overflow-y-scroll space-y-5 p-10 justify-center"  // Set width to 1/2 for each slide
+              className="flex-shrink-0 w-1/2 flex flex-col overflow-y-scroll space-y-5 p-10 justify-center"  // Set width to 1/2 for each slide
             >
               {slide.title}
               {slide.content}
@@ -168,10 +174,9 @@ export default function Home() {
         </div>
       </div>
 
-
       {/* Right half - WatCard + Goose */}
-      <div className="w-1/2 transition-all z-1 max-w-md items-center justify-end">
-        <div className="w-[200%] relative">
+      <div className="absolute left-1/2 top-0 w-full h-full transition-all z-1 flex items-center justify-start">
+        <div className="w-[200%] max-w-5xl relative ">
           <div className="absolute bottom-[5%] left-[13%] md:left-[20%] w-1/2 h-5/6 rounded-md">
             <GooseHead
               ref={gooseRef}
@@ -182,7 +187,6 @@ export default function Home() {
               speech=''
             />
           </div>
-          {/* <div className="relative w-full aspect-[5/3]"/> */}
           <WatCard />
         </div>
       </div>
