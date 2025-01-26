@@ -5,12 +5,13 @@ const TransactionsContext = createContext(null);
 import { saveAs } from 'file-saver';
 
 export function TransactionsProvider({ children }) {
+  // SETTING AND UPDATING TRANSACTIONS
   const [transactions, setTransactions] = useState([]);
-
   const updateTransactions = useCallback((newTransactions) => {
     setTransactions(newTransactions);
   }, []);
 
+  // CSV
   const downloadCSV = useCallback(() => {
     if (!transactions.length) return;
     const csvContent = [
@@ -18,13 +19,7 @@ export function TransactionsProvider({ children }) {
       ['DATE-TIME', 'TYPE', 'TERMINAL', 'STATUS', 'BALANCE', 'UNITS', 'AMOUNT'].join(','),
       // Transaction rows
       ...transactions.map(tx => [
-        tx.dateTime || '',
-        tx.type || '',
-        tx.terminal || '',
-        tx.status || '',
-        tx.balance || '',
-        tx.units || '',
-        tx.amount || ''
+        tx.dateTime || '', tx.type || '', tx.terminal || '', tx.status || '', tx.balance || '', tx.units || '', tx.amount || ''
       ].map(value => `"${value}"`).join(','))
     ].join('\n');
     // Create and trigger CSV download
@@ -32,15 +27,18 @@ export function TransactionsProvider({ children }) {
     saveAs(blob, 'transactions.csv');
   }, [transactions]);
 
+  // GET TOTAL SPENT
   const totalSpent = useMemo(() => {
     return transactions
       .filter(tx => 
         tx.amount < 0 &&
-        tx.amount > -100
+        tx.type != "003 : PREPAYMENT (ADMIN)" &&
+        tx.type != "136 : ACCOUNT BALANCE MOVE"
       )
       .reduce((sum, tx) => sum + Math.abs(tx.amount), 0);
   }, [transactions]);
 
+  // GET LONGEST SPENDING STREAK
   const getLongestSpendingStreak = useMemo(() => {
     let longestStreak = 0;
     let currentStreak = 0;
@@ -86,14 +84,36 @@ export function TransactionsProvider({ children }) {
     };
    }, [transactions]);
 
+  // GET UNIQUE TERMINALS
+  const uniqueTerminals = useMemo(() => {
+    const terminals = transactions.map(tx => tx.terminal).filter(Boolean); // Filter out any undefined or null values
+    return new Set(terminals).size;
+  }, [transactions]);
+
+  // GET MOST COMMON TERMINAL
+  const mostCommonTerminal = useMemo(() => {
+    const terminalCounts = transactions.reduce((counts, tx) => {
+      if (tx.terminal) {
+        counts[tx.terminal] = (counts[tx.terminal] || 0) + 1;
+      }
+      return counts;
+    }, {});
+    return Object.entries(terminalCounts).reduce(
+      (mostCommon, [terminal, count]) => (count > mostCommon.count ? { terminal, count } : mostCommon),
+      { terminal: null, count: 0 }
+    );
+  }, [transactions]);
+
   return (
     <TransactionsContext.Provider 
       value={{ 
         transactions,
         downloadCSV,
-        updateTransactions, 
+        updateTransactions,
+        getLongestSpendingStreak,
         totalSpent,
-        getLongestSpendingStreak
+        uniqueTerminals,
+        mostCommonTerminal
       }}
     >
       {children}
