@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Upload, AlertCircle, CheckCircle2, Download } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useTransactions } from './providers/transactions-provider';
@@ -13,6 +13,23 @@ export default function TransactionImporter() {
   const [isDragging, setIsDragging] = useState(false);
   const { transactions, updateTransactions, downloadCSV } = useTransactions();
 
+  const useSampleData = () => {
+    fetch('/sampleTransactions.txt')
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Failed to fetch sample transactions');
+        }
+        return response.text();
+      })
+      .then((data) => {
+        setTextValue(data);
+        parseTransactions(data);
+      })
+      .catch((error) => {
+        console.error('Error loading sample data:', error);
+      });
+  };
+
   const parseTransactions = async (text) => {
     try {
       const lines = text.split('\n');
@@ -25,19 +42,23 @@ export default function TransactionImporter() {
       const parsedTransactions = lines.slice(dataStartIndex + 1)
         .filter(line => line.match(/^\d{4}-\d{2}-\d{2}/))
         .map(line => {
-          const parts = line.split(/(?<=\d)\s+(?=\d{3}\s+:|[A-Z]+\s+\()|(?<=\))\s+(?=\d{5}\s+:|[A-Z]+[-\w]+)|(?<=:)\s+(?=\d{5}\s+:|[A-Z]+[-\w]+)|(?<=\w)\s+(?=Approved)|(?<=Approved)\s+(?=\d+)|(?<=\d)\s+(?=\$)/).filter(Boolean);
-          
-          // Safely extract values with default values if undefined
-          const [dateTime = '', type = '', terminal = '', status = '', balance = '0', units = '', amount = '$0'] = parts;
-          
+          const parts = line.split('\t');
+          const [dateTimeStr = '', type = '', terminal = '', status = '', balance = '0', units = '', amount = ''] = parts;          
+          if (!amount || amount === '$0') {
+            throw new Error('Amount column missing. Please widen the window and try again.');
+          }
+          const dateTime = new Date(dateTimeStr);
+          if (isNaN(dateTime)) {
+            throw new Error(`Invalid date format: ${dateTimeStr}`);
+          }
           return {
             dateTime,
-            type: type.split(' : ')[1] || type,
-            location: terminal.split(' : ')[1] || terminal,
+            type,
+            terminal,
             status,
-            balance: parseInt(balance) || 0,
-            // Safely handle amount parsing with fallback to 0
-            amount: parseFloat((amount || '$0').replace(/[^\d.-]/g, '')) || 0
+            balance,
+            units,
+            amount: parseFloat(amount.replace(/[^\d.-]/g, '')) || 0
           };
         });
 
@@ -87,10 +108,12 @@ export default function TransactionImporter() {
       <div className="relative w-full h-12 overflow-hidden">
         <textarea
           ref={textAreaRef}
+          spellCheck={false}
           className={`
             w-full h-full
             border-2 border-dashed rounded-lg
-            resize-none
+            resize-none over
+            overflow-hidden
             p-2 text-sm leading-none
             focus:outline-none
             transition-colors
@@ -100,6 +123,11 @@ export default function TransactionImporter() {
           `}
           onPaste={handlePaste}
           onChange={handleChange}
+          onKeyDown={(e) => {
+            if (e.key === 'Backspace') {
+              setTextValue('');
+            }
+          }}
           value={textValue.replace(/\s+/g, '')}
           tabIndex={0}
         />
@@ -112,6 +140,7 @@ export default function TransactionImporter() {
           </span>
         </div>
       </div>
+      <button onClick={useSampleData} className='text-xs italic text-black/30 outline-none'> (or load sample data) </button>
     </div>
   );
 }

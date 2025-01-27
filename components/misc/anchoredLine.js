@@ -6,15 +6,27 @@ const AnchoredLine = ({ position, duration, strokeWidth }) => {
   const lineRef = useRef(null);
 
   useEffect(() => {
-    // Animate the line attributes whenever position or duration changes
-    gsap.to(lineRef.current, {
-      attr: {
-        x2: `calc(50% + ${position.x}px)`,
-        y2: `calc(50% + ${position.y}px)`,
-      },
-      duration: duration,
-      ease: 'power1.out',
-    });
+    const updateLinePosition = () => {
+      const containerWidth = lineRef.current.parentElement.clientWidth;
+      const containerHeight = lineRef.current.parentElement.clientHeight;
+  
+      const x2Value = containerWidth * 0.5 + position.x; // Calculate absolute x2
+      const y2Value = containerHeight * 0.5 + position.y; // Calculate absolute y2
+  
+      gsap.to(lineRef.current, {
+        attr: {
+          x2: x2Value,
+          y2: y2Value,
+        },
+        duration: duration,
+        ease: 'power1.out',
+      });
+    };
+    updateLinePosition();
+    window.addEventListener('resize', updateLinePosition);
+    return () => {
+      window.removeEventListener('resize', updateLinePosition);
+    };
   }, [position, duration]);
 
   return (

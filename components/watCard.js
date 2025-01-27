@@ -3,7 +3,7 @@
 import React from 'react';
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
-import GooseHead from './goose/gooseHead';
+import throttle from 'lodash.throttle';
 
 const useContainerScale = (containerRef, baseWidth) => {
   const [scale, setScale] = useState(0.5);
@@ -27,7 +27,7 @@ const WatCard = ({ studentInfo = {
   lastName: "GOOSE",
   program: "MATHEMATICS",
   status: "UNDERGRADUATE",
-  number: "21063865",
+  number: "12345678",
   imageUrl: "https://www.allaboutbirds.org/guide/assets/photo/59953191-480px.jpg"
 } }) => {
   const containerRef = useRef(null);
@@ -40,7 +40,7 @@ const WatCard = ({ studentInfo = {
     if (!card) return;
     card.style.transform = 'rotateX(0deg) rotateY(-20deg)';
 
-    const handleMouseMove = (e) => {
+    const handleMouseMove = throttle((e) => {
       const rect = card.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
@@ -49,7 +49,7 @@ const WatCard = ({ studentInfo = {
       const rotateX = ((y / rect.height) - 0.5) * -30;
       
       card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-    };
+    }, 16);
     
     const handleMouseLeave = () => {
       card.style.transform = 'rotateX(0deg) rotateY(-20deg)';

@@ -7,6 +7,7 @@ import BottomBeak from './bottom_beak.svg'
 import SpeechBubble from '../speechBubble';
 import AnchoredLine from '../misc/anchoredLine';
 import gsap from 'gsap';
+import throttle from 'lodash.throttle';
 
 const GooseHead = forwardRef(({
     size = 200,
@@ -29,15 +30,21 @@ const GooseHead = forwardRef(({
     // SPEAKING
     const [isSpeaking, setIsSpeaking] = useState(false);
     const [dialogue, setDialogue] = useState(null);
+    const [mouthDeg, setMouthDeg] = useState(0);
     const speak = async (dialogue, duration = 1000) => {
         await new Promise(resolve => setTimeout(resolve, 100));
         setIsSpeaking(true);
         setMouthDeg(30);
         setDialogue(dialogue);
         await new Promise(resolve => setTimeout(resolve, duration));
+        setDialogue("");
         setMouthDeg(0);
         setIsSpeaking(false);
     };
+
+    useEffect(() => {
+        if (mouthDeg == 0 && isSpeaking) setIsSpeaking(false);
+    }, [mouthDeg]);
 
     // EATING
     const [isEating, setIsEating] = useState(false);
@@ -75,7 +82,7 @@ const GooseHead = forwardRef(({
 
     // EMOTIONS
     useEffect(() => {
-        setMouthDeg(isHappy ? 26 : 0);
+        if (!isEating) setMouthDeg(isHappy ? 26 : 0);
     }, [isHappy]);
     
     // CONTROLS
@@ -94,7 +101,6 @@ const GooseHead = forwardRef(({
     // HEAD TRANSFORMATIONS
     const [position, setPosition] = useState({ x: 0, y: 0 });
     const [rotation, setRotation] = useState(0);
-    const [mouthDeg, setMouthDeg] = useState(0);
     useEffect(() => {
         if (typeof window === 'undefined') return; // Guard for SSR
         if (isEating) return; // Skip normal movement if eating
@@ -114,7 +120,7 @@ const GooseHead = forwardRef(({
                 bobbingAnimation.kill();
             };
         } else if (mode === "FOLLOW") {
-            const handleMouseMove = (event) => {
+            const handleMouseMove = throttle((event) => {
                 if (!headRef.current) return;
 
                 const bounds = headRef.current.getBoundingClientRect();
@@ -149,7 +155,7 @@ const GooseHead = forwardRef(({
                 while (angle < prevAngle - 180) angle += 360;
                 prevAngleRef.current = angle;
                 setRotation(angle);
-            };
+            }, 16);
 
             window.addEventListener('mousemove', handleMouseMove);
             return () => window.removeEventListener('mousemove', handleMouseMove);
@@ -167,12 +173,12 @@ const GooseHead = forwardRef(({
             />
             {/* HEAD + SPEECH BUBBLE */}
             <div
-                className="absolute z-20 flex items-center justify-center"
+                className="absolute z-20 flex pointer-events-none items-center justify-center"
                 ref={headRef}
                 style={{
                     transform: `translate(${position.x}px, ${position.y}px) rotate(${rotation}deg)`,
                     transformOrigin: 'center',
-                    transition:  "transform 0.15s ease-out" 
+                    transition:  "transform 0.1s ease-out" 
                 }}
             >
                 {/* SPEECH BUBBLE */}

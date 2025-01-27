@@ -14,11 +14,17 @@ export default function Home() {
   const regularNeckLength = 200;
   const [neckLength, setNeckLength] = useState(regularNeckLength);
   // TRANSACTION ANALYSIS
-  const { transactions } = useTransactions();
-  const totalSpent = transactions
-    .filter(tx => tx.amount < 0)
-    .reduce((sum, tx) => sum + Math.abs(tx.amount), 0);
-  
+  const { transactions, getLongestSpendingStreak, totalSpent, uniqueTerminals, mostCommonTerminal } = useTransactions();
+  const { streakLength, startDate, endDate } = getLongestSpendingStreak;
+  const formatDate = (date) => {
+    if (!date) return 'N/A';
+    try {
+      return new Date(date).toLocaleDateString();
+    } catch (error) {
+      return 'Invalid Date';
+    }
+  };
+
   // SLIDES
   const [currentSlide, setCurrentSlide] = useState(0);
   const slides = [
@@ -41,14 +47,16 @@ export default function Home() {
     },
     // SLIDE 2
     {
+      disabled: transactions.length == 0,
       content: (
         <div className='w-full flex flex-col space-y-2'>
-          <div className="bg-amber-50 p-4 rounded-lg">
+          <div className="py-4 rounded-lg">
               <ol className="space-y-4">
                 <li className="flex items-start">
                   <div>
-                    <p>Sign in to the                      
-                      <a className="text-yellow-400 " href="https://secure.touchnet.net/C22566_oneweb/"> WatCard portal</a>
+                    <p>
+                      <span>Sign in to the </span>
+                      <a className="text-yellow-400 underline italic" href="https://secure.touchnet.net/C22566_oneweb/TransactionHistory/Transactions" target="_blank">WatCard portal</a>
                     </p>
                   </div>
                 </li>
@@ -78,7 +86,7 @@ export default function Home() {
     // SLIDE 3
     {
       content: (
-        <div className='w-full p-3 aspect-square rounded-2xl items-center flex  '>
+        <div className='w-full p-3 aspect-[4/3] rounded-2xl items-center flex  '>
           <p className="text-5xl">
             You ate <br />
             <em> <strong> ${totalSpent.toFixed(2)}  </strong> </em> <br />
@@ -86,7 +94,33 @@ export default function Home() {
           </p>
         </div>
       ),
-      buttonText: ""
+      buttonText: "→"
+    },
+    // SLIDE 4
+    {
+      content: (
+        <div className='w-full p-3 aspect-[4/3] rounded-2xl items-center flex  '>
+          <span className="text-5xl">
+            Your longest spending streak was  <br />
+            <em> <strong> {streakLength} days. </strong> </em> <br />
+            <p className='text-xl'> {formatDate(startDate)} to {formatDate(endDate) } </p>
+          </span>
+        </div>
+      ),
+      buttonText: "→"
+    },
+    // SLIDE 5
+    {
+      content: (
+        <div className='w-full p-3 aspect-[4/3] rounded-2xl items-center flex  '>
+          <span className="text-5xl">
+            Out of 
+            <em> <strong> {uniqueTerminals} vendors </strong> </em> <br />
+            {mostCommonTerminal.terminal} stood out.
+          </span>
+        </div>
+      ),
+      buttonText: "→"
     }
   ];
 
@@ -98,19 +132,27 @@ export default function Home() {
 
   // PAGE
   return (
-    <div className="h-screen bg-amber-100 flex items-center overflow-hidden">
+    <div className="relative w-full h-screen bg-amber-100 flex items-center mask-gradient-right overflow-hidden">
       {/* Left half - Text content */}
-      <div className="w-1/2 overflow-hidden relative">
+      <div
+        className="w-full overflow-hidden relative"
+      >
         <div 
           className="flex transition-transform duration-500 ease-in-out"
           style={{ 
-            transform: `translateX(-${currentSlide * 100}%)`,
+            transform: `translateX(-${currentSlide * 50}%)`,
           }}
         >
           {slides.map((slide, index) => (
             <div 
               key={index}
-              className="flex-shrink-0 w-full flex flex-col overflow-y-scroll space-y-5 p-10 justify-center"  // Set width to 1/2 for each slide
+              className={
+                `flex-shrink-0 w-1/2 flex flex-col overflow-y-scroll space-y-5 p-10 justify-center
+                transition-opacity duration-500 ${index !== currentSlide ? 'opacity-0' : 'opacity-100'}`
+              }
+              style={{
+                pointerEvents: index === currentSlide ? 'auto' : 'none', // Prevent interaction with invisible slides
+              }}
             >
               {slide.title}
               {slide.content}
@@ -125,7 +167,7 @@ export default function Home() {
                   setNeckLength(regularNeckLength);
                 }}
                 onClick={handleNextSlide}
-                disabled={index === 1}
+                disabled={slide.disabled}
               >
                 {slide.buttonText}
               </button>
@@ -134,10 +176,9 @@ export default function Home() {
         </div>
       </div>
 
-
       {/* Right half - WatCard + Goose */}
-      <div className="w-1/2 transition-all z-1 max-w-md items-center justify-end">
-        <div className="w-[200%] relative">
+      <div className="absolute left-1/2 top-0 w-full h-full transition-all z-1 flex items-center justify-start">
+        <div className="w-[200%] max-w-5xl relative ">
           <div className="absolute bottom-[5%] left-[13%] md:left-[20%] w-1/2 h-5/6 rounded-md">
             <GooseHead
               ref={gooseRef}
@@ -148,7 +189,6 @@ export default function Home() {
               speech=''
             />
           </div>
-          {/* <div className="relative w-full aspect-[5/3]"/> */}
           <WatCard />
         </div>
       </div>
