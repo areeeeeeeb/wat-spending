@@ -7,6 +7,7 @@ import BottomBeak from './bottom_beak.svg'
 import SpeechBubble from '../speechBubble';
 import AnchoredLine from '../misc/anchoredLine';
 import gsap from 'gsap';
+import throttle from 'lodash.throttle';
 
 const GooseHead = forwardRef(({
     size = 200,
@@ -119,7 +120,7 @@ const GooseHead = forwardRef(({
                 bobbingAnimation.kill();
             };
         } else if (mode === "FOLLOW") {
-            const handleMouseMove = (event) => {
+            const handleMouseMove = throttle((event) => {
                 if (!headRef.current) return;
 
                 const bounds = headRef.current.getBoundingClientRect();
@@ -154,7 +155,7 @@ const GooseHead = forwardRef(({
                 while (angle < prevAngle - 180) angle += 360;
                 prevAngleRef.current = angle;
                 setRotation(angle);
-            };
+            }, 16);
 
             window.addEventListener('mousemove', handleMouseMove);
             return () => window.removeEventListener('mousemove', handleMouseMove);
@@ -172,12 +173,12 @@ const GooseHead = forwardRef(({
             />
             {/* HEAD + SPEECH BUBBLE */}
             <div
-                className="absolute z-20 flex items-center justify-center"
+                className="absolute z-20 flex pointer-events-none items-center justify-center"
                 ref={headRef}
                 style={{
                     transform: `translate(${position.x}px, ${position.y}px) rotate(${rotation}deg)`,
                     transformOrigin: 'center',
-                    transition:  "transform 0.15s ease-out" 
+                    transition:  "transform 0.1s ease-out" 
                 }}
             >
                 {/* SPEECH BUBBLE */}
