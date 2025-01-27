@@ -86,7 +86,7 @@ export default function Home() {
     // SLIDE 3
     {
       content: (
-        <div className='w-full p-3 aspect-square rounded-2xl items-center flex  '>
+        <div className='w-full p-3 aspect-[4/3] rounded-2xl items-center flex  '>
           <p className="text-5xl">
             You ate <br />
             <em> <strong> ${totalSpent.toFixed(2)}  </strong> </em> <br />
@@ -99,7 +99,7 @@ export default function Home() {
     // SLIDE 4
     {
       content: (
-        <div className='w-full p-3 aspect-square rounded-2xl items-center flex  '>
+        <div className='w-full p-3 aspect-[4/3] rounded-2xl items-center flex  '>
           <span className="text-5xl">
             Your longest spending streak was  <br />
             <em> <strong> {streakLength} days. </strong> </em> <br />
@@ -112,7 +112,7 @@ export default function Home() {
     // SLIDE 5
     {
       content: (
-        <div className='w-full p-3 aspect-square rounded-2xl items-center flex  '>
+        <div className='w-full p-3 aspect-[4/3] rounded-2xl items-center flex  '>
           <span className="text-5xl">
             Out of 
             <em> <strong> {uniqueTerminals} vendors </strong> </em> <br />
@@ -136,13 +136,9 @@ export default function Home() {
       {/* Left half - Text content */}
       <div
         className="w-full overflow-hidden relative"
-        style={{
-          WebkitMaskImage: "linear-gradient(to right, black 50%, transparent 50%)",
-          maskImage: "linear-gradient(to right, black 50%, transparent 50%)",
-        }}
       >
         <div 
-          className="flex stransition-transform duration-500 ease-in-out"
+          className="flex transition-transform duration-500 ease-in-out"
           style={{ 
             transform: `translateX(-${currentSlide * 50}%)`,
           }}
@@ -150,7 +146,13 @@ export default function Home() {
           {slides.map((slide, index) => (
             <div 
               key={index}
-              className="flex-shrink-0 w-1/2 flex flex-col overflow-y-scroll space-y-5 p-10 justify-center"  // Set width to 1/2 for each slide
+              className={
+                `flex-shrink-0 w-1/2 flex flex-col overflow-y-scroll space-y-5 p-10 justify-center
+                transition-opacity duration-500 ${index !== currentSlide ? 'opacity-0' : 'opacity-100'}`
+              }
+              style={{
+                pointerEvents: index === currentSlide ? 'auto' : 'none', // Prevent interaction with invisible slides
+              }}
             >
               {slide.title}
               {slide.content}
