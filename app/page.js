@@ -1,11 +1,12 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import WatCard from "@/components/watCard";
 import GooseHead from "@/components/goose/gooseHead";
 import TransactionImporter from '@/components/transactionImporter';
 import { useTransactions } from '@/components/providers/transactions-provider';
-import { ChevronRight, Space, Underline } from 'lucide-react';
+import { ChevronRight, Space, Underline, ArrowDownToLine } from 'lucide-react';
 import { useGoose } from '@/components/providers/goose-provider';
+import { toPng } from 'html-to-image';
 
 export default function Home() {
   // GOOSE
@@ -26,6 +27,23 @@ export default function Home() {
   };
 
   // SLIDES
+  const slideImageRef = useRef(null)
+  const onImageDowloadClick = useCallback(() => {
+    if (slideImageRef.current === null) {
+      return
+    }
+    toPng(slideImageRef.current, { cacheBust: true, })
+      .then((dataUrl) => {
+        const link = document.createElement('a')
+        link.download = 'my-image-name.png'
+        link.href = dataUrl
+        link.click()
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+  }, [slideImageRef])
+
   const [currentSlide, setCurrentSlide] = useState(0);
   const slides = [
     // SLIDE 1
@@ -146,6 +164,7 @@ export default function Home() {
           {slides.map((slide, index) => (
             <div 
               key={index}
+              ref={index === currentSlide ? slideImageRef : null}
               className={
                 `flex-shrink-0 w-1/2 flex flex-col overflow-y-scroll space-y-5 p-10 justify-center
                 transition-opacity duration-500 ${index !== currentSlide ? 'opacity-0' : 'opacity-100'}`
@@ -171,6 +190,15 @@ export default function Home() {
               >
                 {slide.buttonText}
               </button>
+              
+              {/* {index >= 2 &&
+                <div className='w-full flex justify-end'>
+                  <ArrowDownToLine
+                    className='cursor-pointer text-black bg-gray-200 p-1 rounded-lg w-7 h-7'
+                    onClick={onImageDowloadClick}
+                  />
+                </div>
+              } */}
             </div>
           ))}
         </div>
