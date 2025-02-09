@@ -11,8 +11,7 @@ import throttle from 'lodash.throttle';
 
 const GooseHead = forwardRef(({
     size = 200,
-    isHappy = false,
-    maxDistance = size / 5,
+    regularNeckLength = size / 5,
     mode = "FOLLOW"
 }, ref) => {
     // SCALE
@@ -26,6 +25,14 @@ const GooseHead = forwardRef(({
     const prevAngleRef = useRef(0);
     const headRef = useRef(null);
     const beakRef = useRef(null);
+
+    // NECK SCALING
+    const [neckLength, setNeckLength] = useState(regularNeckLength);
+    const [neckScale, setNeckScale] = useState(1);
+    const scaleNeck = setNeckScale;
+    useEffect(() => {
+        setNeckLength(regularNeckLength * neckScale);
+    }, [neckScale, regularNeckLength]);
 
     // SPEAKING
     const [isSpeaking, setIsSpeaking] = useState(false);
@@ -74,13 +81,9 @@ const GooseHead = forwardRef(({
         await new Promise(resolve => setTimeout(resolve, 350));
         setIsEating(false);
     };
-    // Expose eat function to parent
-    useImperativeHandle(ref, () => ({
-        eat,
-        speak
-    }), []);
 
     // EMOTIONS
+    const [isHappy, setIsHappy] = useState(false);
     useEffect(() => {
         if (!isEating) setMouthDeg(isHappy ? 26 : 0);
     }, [isHappy]);
@@ -132,7 +135,7 @@ const GooseHead = forwardRef(({
                 const dx = event.clientX - centerX;
                 const dy = event.clientY - centerY;
                 const distance = Math.sqrt(dx * dx + dy * dy);
-                const scaledDistance = Math.min(distance, maxDistance);
+                const scaledDistance = Math.min(distance, neckLength);
                 const scale = scaledDistance / distance;
                 const newX = dx * scale;
                 const newY = dy * scale;
@@ -160,7 +163,16 @@ const GooseHead = forwardRef(({
             window.addEventListener('mousemove', handleMouseMove);
             return () => window.removeEventListener('mousemove', handleMouseMove);
         }
-    }, [mode, maxDistance, isEating]);
+    }, [mode, neckLength, isEating]);
+
+
+    // Expose eat function to parent
+    useImperativeHandle(ref, () => ({
+        eat,
+        speak,
+        scaleNeck,
+        setIsHappy
+    }), []);
 
     // COMPONENT
     return (
