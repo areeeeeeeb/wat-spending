@@ -1,6 +1,6 @@
 import { useTransactions } from "./providers/transactions-provider";
 import TransactionImporter from "./transactionImporter";
-import { useRef, useCallback, useState } from "react";
+import { useRef, useCallback, useState, useEffect } from "react";
 import { useGoose } from '@/components/providers/goose-provider';
 
 export default function AnalysisSlides() {
@@ -18,7 +18,7 @@ export default function AnalysisSlides() {
     }
     };
     
-    // SLIDES
+    // IMAGE GENERATING
     const slideImageRef = useRef(null)
     const onImageDowloadClick = useCallback(() => {
     if (slideImageRef.current === null) {
@@ -36,7 +36,19 @@ export default function AnalysisSlides() {
         })
     }, [slideImageRef])
 
+    // SLIDE LOGIC
     const [currentSlide, setCurrentSlide] = useState(0);
+    const [slideWidth, setSlideWidth] = useState(0);
+        useEffect(() => {
+            const updateSlideWidth = () => {
+            if (slideImageRef.current) {
+                setSlideWidth(slideImageRef.current.offsetWidth);
+            }
+            };
+            updateSlideWidth();
+            window.addEventListener("resize", updateSlideWidth);
+            return () => window.removeEventListener("resize", updateSlideWidth);
+    }, []);
     const slides = [
     // SLIDE 1
     {
@@ -160,17 +172,17 @@ export default function AnalysisSlides() {
 
     return (
         <div
-          className="flex transition-transform duration-500 ease-in-out"
-          style={{ 
-            transform: `translateX(-${currentSlide * 50}%)`,
-          }}
+            className="flex transition-transform duration-500 ease-in-out"
+            style={{
+            transform: `translateX(-${currentSlide * slideWidth}px)`,
+            }}
         >
           {slides.map((slide, index) => (
             <div 
               key={index}
               ref={index === currentSlide ? slideImageRef : null}
               className={
-                `flex-shrink-0 w-1/2 flex flex-col overflow-y-scroll space-y-5 p-10 justify-center
+                `flex-shrink-0 w-[100%] sm:w-[50%] flex flex-col overflow-y-scroll space-y-5 p-10 justify-center
                 transition-opacity duration-500 ${index !== currentSlide ? 'opacity-0' : 'opacity-100'}`
               }
               style={{
