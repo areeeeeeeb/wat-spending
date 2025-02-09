@@ -15,7 +15,7 @@ export default function Home() {
   const regularNeckLength = 200;
   const [neckLength, setNeckLength] = useState(regularNeckLength);
   // TRANSACTION ANALYSIS
-  const { transactions, getLongestSpendingStreak, totalSpent, uniqueTerminals, mostCommonTerminal } = useTransactions();
+  const { transactions, getLongestSpendingStreak, totalSpent, uniqueTerminals, mostCommonTerminal, terminalToName } = useTransactions();
   const { streakLength, startDate, endDate } = getLongestSpendingStreak;
   const formatDate = (date) => {
     if (!date) return 'N/A';
@@ -134,7 +134,22 @@ export default function Home() {
           <span className="text-5xl">
             Out of 
             <em> <strong> {uniqueTerminals} vendors </strong> </em> <br />
-            {mostCommonTerminal.terminal} stood out.
+            One stood out.
+          </span>
+        </div>
+      ),
+      buttonText: "→"
+    },
+    // SLIDE 6
+    {
+      content: (
+        <div className='w-full p-3 aspect-[4/3] rounded-2xl items-center flex  '>
+          <span className="text-3xl">
+            Top Vendor  <br />
+            <p className='text-6xl'>
+              <em> <strong> {terminalToName(mostCommonTerminal.terminal)} </strong> </em> <br />
+            </p>
+            <p className='text-xl'> {mostCommonTerminal.count} transactions totaling to ${Math.abs(mostCommonTerminal.sum)} </p>
           </span>
         </div>
       ),
@@ -155,7 +170,7 @@ export default function Home() {
       <div
         className="w-full overflow-hidden relative"
       >
-        <div 
+        <div
           className="flex transition-transform duration-500 ease-in-out"
           style={{ 
             transform: `translateX(-${currentSlide * 50}%)`,
