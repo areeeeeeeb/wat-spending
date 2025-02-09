@@ -90,17 +90,44 @@ export function TransactionsProvider({ children }) {
     return new Set(terminals).size;
   }, [transactions]);
 
+  const terminalToName = (terminal) => {
+    if (typeof terminal !== "string" || terminal.length < 5) {
+        return "Invalid input";
+    }
+    const prefix = terminal.substring(0, 5);
+    switch (prefix) {
+        case "00043":
+            return "REVelation";
+        case "00033":
+            return "V1 Mudie’s";
+        case "02323":
+            return "DC Tim Hortons";
+        case "01259":
+            return "Ev3rgreen Café";
+        case "01349":
+            return "Funcken Café";
+        default:
+            return terminal;
+    }
+  }
+
   // GET MOST COMMON TERMINAL
   const mostCommonTerminal = useMemo(() => {
-    const terminalCounts = transactions.reduce((counts, tx) => {
+    const terminalData = transactions.reduce((data, tx) => {
       if (tx.terminal) {
-        counts[tx.terminal] = (counts[tx.terminal] || 0) + 1;
+        if (!data[tx.terminal]) {
+          data[tx.terminal] = { count: 0, sum: 0 };
+        }
+        data[tx.terminal].count += 1;
+        data[tx.terminal].sum += tx.amount || 0;
       }
-      return counts;
+      return data;
     }, {});
-    return Object.entries(terminalCounts).reduce(
-      (mostCommon, [terminal, count]) => (count > mostCommon.count ? { terminal, count } : mostCommon),
-      { terminal: null, count: 0 }
+  
+    return Object.entries(terminalData).reduce(
+      (mostCommon, [terminal, { count, sum }]) =>
+        count > mostCommon.count ? { terminal, count, sum } : mostCommon,
+      { terminal: null, count: 0, sum: 0 }
     );
   }, [transactions]);
 
@@ -113,6 +140,7 @@ export function TransactionsProvider({ children }) {
         getLongestSpendingStreak,
         totalSpent,
         uniqueTerminals,
+        terminalToName,
         mostCommonTerminal
       }}
     >
