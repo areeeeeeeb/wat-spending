@@ -11,7 +11,7 @@ import throttle from 'lodash.throttle';
 
 const GooseHead = forwardRef(({
     size = 200,
-    regularNeckLength = size / 5,
+    regularNeckLength = size * 0.8,
     mode = "FOLLOW"
 }, ref) => {
     // SCALE
@@ -38,7 +38,8 @@ const GooseHead = forwardRef(({
     const [isSpeaking, setIsSpeaking] = useState(false);
     const [dialogue, setDialogue] = useState(null);
     const [mouthDeg, setMouthDeg] = useState(0);
-    const speak = async (dialogue, duration = 1000) => {
+    const speak = async (dialogue, duration = 1000, wait = 0) => {
+        await new Promise(resolve => setTimeout(resolve, wait));
         await new Promise(resolve => setTimeout(resolve, 100));
         setIsSpeaking(true);
         setMouthDeg(30);

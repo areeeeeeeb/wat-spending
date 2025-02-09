@@ -95,6 +95,7 @@ export default function AnalysisSlides() {
     },
     // SLIDE 3
     {
+        gooseSpeak: "Where do you find the cash?",
         content: (
         <div className='w-full p-3 aspect-[4/3] rounded-2xl items-center flex  '>
             <p className="text-5xl">
@@ -108,6 +109,7 @@ export default function AnalysisSlides() {
     },
     // SLIDE 4
     {
+        gooseSpeak: "Ever try cooking a meal?",
         content: (
         <div className='w-full p-3 aspect-[4/3] rounded-2xl items-center flex  '>
             <span className="text-5xl">
@@ -134,6 +136,7 @@ export default function AnalysisSlides() {
     },
     // SLIDE 6
     {
+        gooseSpeak: "Lame.",
         content: (
         <div className='w-full p-3 aspect-[4/3] rounded-2xl items-center flex  '>
             <span className="text-3xl">
@@ -186,7 +189,12 @@ export default function AnalysisSlides() {
                     gooseRef.current.setIsHappy(false)
                     gooseRef.current.scaleNeck(1);
                 }}
-                onClick={handleNextSlide}
+                onClick={() => {
+                    handleNextSlide();
+                    if (slides[index+1] && slides[index+1].gooseSpeak) {
+                        gooseRef.current.speak(slides[index+1].gooseSpeak, 10000, 2000);
+                    }
+                }}
                 disabled={slide.disabled}
               >
                 {slide.buttonText}
