@@ -1,6 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Upload, AlertCircle, CheckCircle2, Download } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useTransactions } from './providers/transactions-provider';
 
 import { useGoose } from '@/components/providers/goose-provider';

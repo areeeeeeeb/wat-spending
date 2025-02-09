@@ -97,15 +97,17 @@ export function TransactionsProvider({ children }) {
     const prefix = terminal.substring(0, 5);
     switch (prefix) {
         case "00043":
-            return "REVelation";
+          return "REVelation";
         case "00033":
-            return "V1 Mudie’s";
+          return "V1 Mudie’s";
         case "02323":
-            return "DC Tim Hortons";
+          return "DC Tim Hortons";
         case "01259":
-            return "Ev3rgreen Café";
+          return "Ev3rgreen Café";
         case "01349":
-            return "Funcken Café";
+          return "Funcken Café";
+        case "02293":
+          return "Williams Fresh Cafe";
         default:
             return terminal;
     }
